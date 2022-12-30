@@ -1,16 +1,18 @@
 #glossary
 occupied = "cannot move here because this place is occupied"
 
-
+map_size = [20, 10]
 class Map_Row:
     def __init__(self, id):
         self.id = id
-        self.col = {"A" : " ", "B" : " ", "C" : " ", "D" : " ", "E" : " ", "F" : " ", "G" : " ", "H" : " ", "I" : " ", "J" : " ", }
+        self.col = {}
+        for i in list(map(chr, range(65, 65 + map_size[0]))):
+            self.col[i] = " "
     def print_row(self):
         row_str = " "
         for letter in self.col.values():
             row_str += " " + letter + "  "
-        print("  " + str(self.id) + " |" + row_str + " |")
+        print("  " + str(self.id) + " |" + row_str + "|")
 
 class Soldier:
     def __init__(self, player, hp=10, ap=2): #ap stands for attack power
@@ -39,11 +41,15 @@ def headshift(x, value):
     return number_to_header[number]
 
 #map creation section
-number_to_header = list(map(chr, range(65, 75)))
+number_to_header = list(map(chr, range(65, 91)))
 header_to_number = {}
 for i in number_to_header:
     header_to_number[i] = number_to_header.index(i)
-map_header = ["R |  A   B   C   D   E   F   G   H   I   J   |"]
+map_header = ""
+map_header += "       "
+for i in list(map(chr, range(65, 65 + map_size[0]))):
+    map_header += i + "   "
+#map_header = ["R |  A   B   C   D   E   F   G   H   I   J   |"]
 row_list = []
 for i in range(10):
     row_list.append(Map_Row(i))
@@ -59,10 +65,10 @@ row_list[9].col["F"] = "X"
 def print_map():
     print()
     print(map_header)
-    print("     ------------------------------------------")
+    print("     " + map_size[0] * 4 * "-" + "-")
     for row in row_list:
         row.print_row()
-    print("     ------------------------------------------")
+    print("     " + map_size[0] * 4 * "-" + "-")
 
 def is_free(x, y): #checking if position is free
     if row_list[y].col[x] == " ":
@@ -109,7 +115,7 @@ soldier2.xy("G", 3)
 is_working = True
 while is_working:
     print_map()
-    movement(soldier1)
+    movement(soldier2)
 
 
 
