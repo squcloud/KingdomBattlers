@@ -1,7 +1,7 @@
 #glossary
 occupied = "cannot move here because this place is occupied"
 
-map_size = [20, 10]
+map_size = [26, 30]
 class Map_Row:
     def __init__(self, id):
         self.id = id
@@ -12,7 +12,10 @@ class Map_Row:
         row_str = " "
         for letter in self.col.values():
             row_str += " " + letter + "  "
-        print("  " + str(self.id) + " |" + row_str + "|")
+        if self.id <= 9:
+            print("   " + str(self.id) + " |" + row_str + "|")
+        else:
+            print("  " + str(self.id) + " |" + row_str + "|")
 
 class Soldier:
     def __init__(self, player, hp=10, ap=2): #ap stands for attack power
@@ -40,43 +43,56 @@ def headshift(x, value):
     number += value
     return number_to_header[number]
 
+def set_object(x, y, value): #settings objects for position
+    row_list[y].col[x] = value
+
 #map creation section
 number_to_header = list(map(chr, range(65, 91)))
 header_to_number = {}
 for i in number_to_header:
     header_to_number[i] = number_to_header.index(i)
 map_header = ""
-map_header += "       "
+map_header += "        "
 for i in list(map(chr, range(65, 65 + map_size[0]))):
     map_header += i + "   "
 #map_header = ["R |  A   B   C   D   E   F   G   H   I   J   |"]
 row_list = []
-for i in range(10):
+for i in range(map_size[1]):
     row_list.append(Map_Row(i))
+# create border
+for i in list(map(chr, range(65, 65 + map_size[0]))):
+    set_object(i, 0, "*")
+for i in list(map(chr, range(65, 65 + map_size[0]))):
+    set_object(i, map_size[1] - 1, "*")
+for i in range(map_size[1]):
+    set_object("A", i, "*")
+for i in range(map_size[1]):
+    set_object(list(map(chr, range(65, 65 + map_size[0])))[-1], i, "*")
+
+
 # create castles
-row_list[0].col["E"] = "X"
+""" row_list[0].col["E"] = "X"
 row_list[0].col["F"] = "X"
 row_list[1].col["E"] = "X"
 row_list[1].col["F"] = "X"
 row_list[8].col["E"] = "X"
 row_list[8].col["F"] = "X"
 row_list[9].col["E"] = "X"
-row_list[9].col["F"] = "X"
+row_list[9].col["F"] = "X" """
 def print_map():
     print()
     print(map_header)
-    print("     " + map_size[0] * 4 * "-" + "-")
+    print("      " + map_size[0] * 4 * "-" + "-")
     for row in row_list:
         row.print_row()
-    print("     " + map_size[0] * 4 * "-" + "-")
+    print("      " + map_size[0] * 4 * "-" + "-")
 
 def is_free(x, y): #checking if position is free
     if row_list[y].col[x] == " ":
         return True
     else:
         return False
-def set_object(x, y, value): #settings objects for position
-    row_list[y].col[x] = value
+
 def movement(walker): # mechanics of prompting for movement of soldiers
     choice = input("Twoj wybor: ")
     if choice == "exit":
@@ -109,7 +125,7 @@ def movement(walker): # mechanics of prompting for movement of soldiers
 #testing 
 soldier1 = Soldier(1)
 soldier2 = Soldier(2)
-soldier1.xy("A", 5)
+soldier1.xy("B", 5)
 soldier2.xy("G", 3)
 
 is_working = True
