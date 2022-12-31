@@ -12,14 +12,14 @@ class Map_Row:
     def print_row(self):
         row_str = " "
         for letter in self.col.values():
-            row_str += " " + letter + "  "
+            row_str += " " + str(letter) + "  "
         if self.id <= 9:
             print("   " + str(self.id) + " |" + row_str + "|")
         else:
             print("  " + str(self.id) + " |" + row_str + "|")
 
 class Soldier:
-    def __init__(self, player, hp=10, ap=2): #ap stands for attack power
+    def __init__(self, player, hp=10, ap=2, x=5, y=5): #ap stands for attack power
         self.player = player
         self.hp = hp
         self.ap = ap
@@ -32,10 +32,20 @@ class Soldier:
         elif self.player == 2:
             return "@"
 
+    def hp_down(self, amount):
+        self.hp -= amount
+        if self.hp <= 0:
+            self.die()
+
+    def die(self):
+        set_object(self.x, self.y, " ")
+        del self
+
     def xy(self, x, y):  #settnig position of a soldier
-        row_list[y].col[x] = str(self)
+        row_list[y].col[x] = self
         self.x = x
         self.y = y
+
 def pos(x, y):
     return row_list[y].col[x]
 
@@ -127,7 +137,7 @@ def is_free_area(x, y, width, height): #checking if area is free
         return False
 
 def movement(walker): # mechanics of prompting for movement of soldiers
-    choice = input("Twoj wybor: ")
+    choice = input("Where you want to go: ")
     if choice == "exit":
         quit()
     elif choice == "up":
@@ -154,6 +164,35 @@ def movement(walker): # mechanics of prompting for movement of soldiers
             walker.xy(headshift(walker.x, -1), walker.y)
         else:
             print(occupied)
+def attack(walker): # mechanics of prompting for attack of soldier
+    choice = input("Choose the direction of attack: ")
+    if choice == "exit":
+        quit()
+    elif choice == "up":
+        if is_free(walker.x, walker.y - 1):
+            print("Nothing to attack")
+            attack(walker)
+        else:
+            print(occupied)
+    elif choice == "down":
+        if is_free(walker.x, walker.y + 1):
+            print("Nothing to attack")
+            attack(walker)
+        else:
+            print(occupied)
+    elif choice == "right":
+        if is_free(headshift(walker.x, 1), walker.y):
+            print("Nothing to attack")
+            attack(walker)
+        else:
+            print(occupied)
+    elif choice == "left":
+        if is_free(headshift(walker.x, -1), walker.y):
+            print("Nothing to attack")
+            attack(walker)
+        else:
+            row_list[walker.y].col[headshift(walker.x, -1)].hp_down(walker.ap)
+
 
 #testing 
 soldier1 = Soldier(1)
@@ -166,7 +205,15 @@ create_castle(1,["H",17], [4, 2], 10)
 is_working = True
 while is_working:
     print_map()
-    movement(soldier2) 
+    print(soldier2.hp)
+    choice = input("What you want to do: ")
+    if choice == "move":
+        movement(soldier1)
+    elif choice == "attack":
+        attack(soldier1)
+    elif choice == "exit":
+        quit()
+    
 
 
 
