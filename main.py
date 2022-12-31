@@ -1,7 +1,8 @@
 #glossary
 occupied = "cannot move here because this place is occupied"
 
-map_size = [26, 30]
+map_size = [18, 20]
+castles = []
 class Map_Row:
     def __init__(self, id):
         self.id = id
@@ -37,6 +38,26 @@ class Soldier:
         self.y = y
 def pos(x, y):
     return row_list[y].col[x]
+
+class Castle:
+    id = 0
+    def __init__(self, player, position, size, hp):
+        self.player = player
+        self.position = position
+        self.hp = hp
+
+    def __repr__(self):
+        return "X"
+
+def create_castle(player, position, size, hp):
+    Castle.id += 1
+    castles.append(Castle(player, position, size, hp))
+    for x in range(size[0]):
+        for y in range(size[1]):
+            set_object(headshift(position[0], x), position[1] + y, str(castles[Castle.id - 1]))
+    
+
+
 
 def headshift(x, value):
     number = header_to_number[x]
@@ -125,9 +146,11 @@ def movement(walker): # mechanics of prompting for movement of soldiers
 #testing 
 soldier1 = Soldier(1)
 soldier2 = Soldier(2)
-soldier1.xy("B", 5)
-soldier2.xy("G", 3)
+soldier1.xy("J", 9)
+soldier2.xy("I", 9)
 
+create_castle(1,["H",1], [4, 2], 10)
+create_castle(1,["H",17], [4, 2], 10)
 is_working = True
 while is_working:
     print_map()
