@@ -113,6 +113,18 @@ def is_free(x, y): #checking if position is free
         return True
     else:
         return False
+def is_free_area(x, y, width, height): #checking if area is free
+    for a in range(width):
+        for b in range(height):
+            if row_list[y + b].col[headshift(x, b)] != " ":
+                return False
+    return True
+
+
+    if row_list[y].col[x] == " ":
+        return True
+    else:
+        return False
 
 def movement(walker): # mechanics of prompting for movement of soldiers
     choice = input("Twoj wybor: ")
@@ -154,7 +166,7 @@ create_castle(1,["H",17], [4, 2], 10)
 is_working = True
 while is_working:
     print_map()
-    movement(soldier2)
+    movement(soldier2) 
 
 
 
