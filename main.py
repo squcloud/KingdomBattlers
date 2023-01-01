@@ -18,6 +18,7 @@ class Player:
         self.name = name
         self.id = self.id_class
         self.id += 1
+        self.soldier_list = []
 
 player_list = []
 player1 = Player("Kuba")
@@ -52,6 +53,7 @@ class Soldier:
         self.x = x
         self.y = y
         row_list[y].col[x] = self
+        player_list[player - 1].soldier_list.append(self)
     
     def __repr__(self):
         if self.player == 1:
@@ -297,6 +299,11 @@ def attack(walker): # mechanics of prompting for attack of soldier
 #testing 
 soldier1 = Soldier(1, x="D", y=5)
 soldier2 = Soldier(2, x="F", y=19)
+soldier3 = Soldier(1, x="N", y=11)
+soldier4 = Soldier(1, x="H", y=10)
+soldier5 = Soldier(1, x="P", y=20)
+soldier6 = Soldier(1, x="O", y=13)
+soldier7 = Soldier(1, x="K", y=13)
 #soldier1.xy("N", 12)
 #soldier2.xy("I", 9)
 
@@ -308,12 +315,24 @@ pies = Tower(1,10,4,5,5)
 # INTERFACE SECTION
 def row_text_update(index):
     if index == 1:
-        row_text[index] = "    Name:   \033[34m" + player_list[0].name.upper() + "\033[0m" + "     Castle HP: \033[34m" + str(castles[0].hp) + "\033[00m / \033[34m50\033[00m"
+        row_text[index] = "     Name:   \033[34m" + player_list[0].name.upper() + "\033[0m" + "     Castle HP: \033[34m" + str(castles[0].hp) + "\033[00m / \033[34m50\033[00m"
+    elif index == 3:
+        row_text[index] = "   Soldiers:"
+    elif index == 4:
+        row_text[index] = "  "
+        for i in range(3):
+            if len(player1.soldier_list)>= i+1:
+                row_text[index] += "[" + str(i+1)  + " HP: \033[34m" + str(player1.soldier_list[i].hp) + "\033[00m/\033[34m10\033[00m " + "Pos: \033[34m" + str(player1.soldier_list[i].x) + "\033[00m:\033[34m" + str(player1.soldier_list[i].y) + "\033[00m]  "
+    elif index == 5:
+        row_text[index] = "  "
+        for i in range(3,6):
+            if len(player1.soldier_list)>= i+1:
+                row_text[index] += "[" + str(i+1)  + " HP: \033[34m" + str(player1.soldier_list[i].hp) + "\033[00m/\033[34m10\033[00m " + "Pos: \033[34m" + str(player1.soldier_list[i].x) + "\033[00m:\033[34m" + str(player1.soldier_list[i].y) + "\033[00m]  "
+        
 
 is_working = True
 while is_working:
     print_map()
-    print(pies.hp)
     choice = input("What you want to do: ")
     
     if choice == "move":
