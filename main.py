@@ -5,7 +5,28 @@ from time import sleep
 #glossary
 occupied = "cannot move here because this place is occupied"
 
+
 map_size = [19, 25]
+row_text=[]
+for i in range(map_size[1]):
+    row_text.append(" ")
+
+class Player:
+    id_class = 0
+    id = 0
+    def __init__(self, name):
+        self.name = name
+        self.id = self.id_class
+        self.id += 1
+
+player_list = []
+player1 = Player("Kuba")
+player2 = Player("Wojtek")
+player_list.append(player1)
+player_list.append(player2)
+
+
+
 castles = []
 class Map_Row:
     def __init__(self, id):
@@ -15,26 +36,28 @@ class Map_Row:
             self.col[i] = " "
     def print_row(self):
         row_str = " "
+        row_text_update(self.id)
         for letter in self.col.values():
             row_str += " " + str(letter) + "  "
         if self.id <= 9:
-            print("   " + str(self.id) + " |" + row_str + "|")
+            print("   " + str(self.id) + " |" + row_str + "|" + row_text[self.id])
         else:
-            print("  " + str(self.id) + " |" + row_str + "|")
+            print("  " + str(self.id) + " |" + row_str + "|" + row_text[self.id])
 
 class Soldier:
-    def __init__(self, player, hp=10, ap=2, x=5, y=5): #ap stands for attack power
+    def __init__(self, player, hp=10, ap=2, x="B", y=5): #ap stands for attack power
         self.player = player
         self.hp = hp
         self.ap = ap
-        self.x = 0
-        self.y = 0
+        self.x = x
+        self.y = y
+        row_list[y].col[x] = self
     
     def __repr__(self):
         if self.player == 1:
-            return "O"
+            return "\033[34m@\033[0m"
         elif self.player == 2:
-            return "@"
+            return "\033[33m@\033[0m"
 
     def hp_down(self, amount):
         self.hp -= amount
@@ -64,7 +87,10 @@ class Tower:
                 set_object(headshift(number_to_header[x], a), y + b, self)
     
     def __repr__(self):
-        return "#"
+        if self.player == 1: 
+            return "\033[34m#\033[00m"
+        elif self.player == 2:
+            return "\033[33m#\033[00m"
 
     def hp_down(self, amount):
         self.hp -= amount
@@ -72,10 +98,12 @@ class Tower:
             self.die()
 
     def die(self):
-        set_object(self.x, self.y, " ")
+        for a in range(self.width):
+            for b in range(self.height):
+                set_object(headshift(number_to_header[self.x], a), self.y + b, " ")
         del self
 
-    def xy(self, x, y):  #settnig position of a soldier
+    def xy(self, x, y):  #settnig position of a tower
         row_list[y].col[x] = self
         self.x = x
         self.y = y
@@ -89,16 +117,32 @@ class Castle:
         self.player = player
         self.position = position
         self.hp = hp
+        self.width = 4
+        self.height = 2
 
     def __repr__(self):
-        return "X"
+        if self.player == 1:
+            return "\033[34mX\033[0m"
+        elif self.player == 2:
+            return "\033[33mX\033[0m"
+    
+    def hp_down(self, amount):
+        self.hp -= amount
+        if self.hp <= 0:
+            self.die()
+
+    def die(self):
+        for x in range(self.width):
+            for y in range(self.height):
+              set_object(headshift(self.position[0], x), self.position[1] + y, " ")
+        del self
 
 def create_castle(player, position, size, hp):
     Castle.id += 1
     castles.append(Castle(player, position, size, hp))
     for x in range(size[0]):
         for y in range(size[1]):
-            set_object(headshift(position[0], x), position[1] + y, str(castles[Castle.id - 1]))
+            set_object(headshift(position[0], x), position[1] + y, castles[Castle.id - 1])
     
 
 
@@ -147,7 +191,7 @@ row_list[9].col["F"] = "X" """
 def print_map():
     print()
     print(map_header)
-    print("      " + map_size[0] * 4 * "-" + "-")
+    print("      " + map_size[0] * 4 * "-" + "-" + "              KINGDOM BATTLERS")
     for row in row_list:
         row.print_row()
     print("      " + map_size[0] * 4 * "-" + "-")
@@ -251,18 +295,25 @@ def attack(walker): # mechanics of prompting for attack of soldier
 
 
 #testing 
-soldier1 = Soldier(1)
-soldier2 = Soldier(2)
-soldier1.xy("N", 12)
-soldier2.xy("I", 9)
+soldier1 = Soldier(1, x="D", y=5)
+soldier2 = Soldier(2, x="F", y=19)
+#soldier1.xy("N", 12)
+#soldier2.xy("I", 9)
 
-create_castle(1,["H",1], [4, 2], 10)
-create_castle(1,["H",17], [4, 2], 10)
+create_castle(1,["H",1], [4, 2], 50)
+create_castle(2,["H",22], [4, 2], 50)
 pies = Tower(1,10,4,5,5)
+
+
+# INTERFACE SECTION
+def row_text_update(index):
+    if index == 1:
+        row_text[index] = "    Name:   \033[34m" + player_list[0].name.upper() + "\033[0m" + "     Castle HP: \033[34m" + str(castles[0].hp) + "\033[00m / \033[34m50\033[00m"
+
 is_working = True
 while is_working:
     print_map()
-    print(soldier2.hp)
+    print(pies.hp)
     choice = input("What you want to do: ")
     
     if choice == "move":
