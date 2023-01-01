@@ -20,6 +20,8 @@ class Player:
         self.id += 1
         self.soldier_list = []
         self.tower_list = []
+        self.economy_building_list = []
+        self.gold = 1000
 
 player_list = []
 player1 = Player("Kuba")
@@ -58,9 +60,9 @@ class Soldier:
     
     def __repr__(self):
         if self.player == 1:
-            return "\033[36m@\033[0m"
+            return "\033[36m;\033[0m"
         elif self.player == 2:
-            return "\033[91m@\033[0m"
+            return "\033[91m;\033[0m"
 
     def hp_down(self, amount):
         self.hp -= amount
@@ -76,6 +78,37 @@ class Soldier:
         row_list[y].col[x] = self
         self.x = x
         self.y = y
+
+class Economy_building:
+    def __init__(self, player, hp=10, x="B", y=5):
+        self.player = player
+        self.hp = hp
+        self.x = x
+        self.y = y
+        row_list[y].col[x] = self
+        player_list[player - 1].economy_building_list.append(self)
+    
+    def __repr__(self):
+        if self.player == 1:
+            return "\033[36m$\033[0m"
+        elif self.player == 2:
+            return "\033[91m$\033[0m"
+
+    def hp_down(self, amount):
+        self.hp -= amount
+        if self.hp <= 0:
+            self.die()
+
+    def die(self):
+        set_object(self.x, self.y, " ")
+        player_list[self.player-1].economy_building_list.remove(self)
+        del self
+
+    def xy(self, x, y):  #settnig position of a economy buikding
+        row_list[y].col[x] = self
+        self.x = x
+        self.y = y
+
 
 class Tower:
     def __init__(self, player, hp=10, ap=4, x="B", y=5): #ap stands for attack power
@@ -125,6 +158,7 @@ class Castle:
         self.hp = hp
         self.width = 4
         self.height = 2
+        self.income = 100
 
     def __repr__(self):
         if self.player == 1:
@@ -316,15 +350,17 @@ create_castle(2,["H",22], [4, 2], 50)
 tower1 = Tower(1,10,4,x="D",y=5)
 tower2 = Tower(1,10,4,x="B",y=8)
 tower3 = Tower(1,10,4,x="J",y=5)
-tower4 = Tower(1,10,4,x="O",y=2)
+tower4 = Tower(2,10,4,x="M",y=19)
 tower5 = Tower(1,10,4,x="Q",y=7)
 tower6 = Tower(1,10,4,x="K",y=10)
 
+economy1 = Economy_building(1,1,x="F",y=2)
+economy2 = Economy_building(2,1,x="B",y=22)
 
 # INTERFACE SECTION
 def row_text_update(index):
     if index == 1:
-        row_text[index] = "     Name:   \033[34m" + player_list[0].name.upper() + "\033[0m" + "     Castle HP: \033[34m" + str(castles[0].hp) + "\033[00m / \033[34m50\033[00m"
+        row_text[index] = "     Name:   \033[34m" + player_list[0].name.upper() + "\033[0m" + "     Castle HP: \033[34m" + str(castles[0].hp) + "\033[00m / \033[34m50\033[00m" + "  Gold: " + "\033[34m" + str(player_list[0].gold) + "\033[00m"
     elif index == 3:
         row_text[index] = "   Soldiers:"
     elif index == 4:
