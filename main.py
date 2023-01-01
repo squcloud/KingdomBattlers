@@ -19,6 +19,7 @@ class Player:
         self.id = self.id_class
         self.id += 1
         self.soldier_list = []
+        self.tower_list = []
 
 player_list = []
 player1 = Player("Kuba")
@@ -57,9 +58,9 @@ class Soldier:
     
     def __repr__(self):
         if self.player == 1:
-            return "\033[34m@\033[0m"
+            return "\033[36m@\033[0m"
         elif self.player == 2:
-            return "\033[33m@\033[0m"
+            return "\033[91m@\033[0m"
 
     def hp_down(self, amount):
         self.hp -= amount
@@ -68,6 +69,7 @@ class Soldier:
 
     def die(self):
         set_object(self.x, self.y, " ")
+        player_list[self.player-1].soldier_list.remove(self)
         del self
 
     def xy(self, x, y):  #settnig position of a soldier
@@ -76,7 +78,7 @@ class Soldier:
         self.y = y
 
 class Tower:
-    def __init__(self, player, hp=10, ap=4, x=5, y=5): #ap stands for attack power
+    def __init__(self, player, hp=10, ap=4, x="B", y=5): #ap stands for attack power
         self.player = player
         self.hp = hp
         self.ap = ap
@@ -86,7 +88,8 @@ class Tower:
         self.height = 2
         for a in range(self.width):
             for b in range(self.height):
-                set_object(headshift(number_to_header[x], a), y + b, self)
+                set_object(headshift(x, a), y + b, self)
+        player_list[player - 1].tower_list.append(self)
     
     def __repr__(self):
         if self.player == 1: 
@@ -102,7 +105,8 @@ class Tower:
     def die(self):
         for a in range(self.width):
             for b in range(self.height):
-                set_object(headshift(number_to_header[self.x], a), self.y + b, " ")
+                set_object(headshift(self.x, a), self.y + b, " ")
+        player_list[self.player-1].tower_list.remove(self)
         del self
 
     def xy(self, x, y):  #settnig position of a tower
@@ -297,7 +301,7 @@ def attack(walker): # mechanics of prompting for attack of soldier
 
 
 #testing 
-soldier1 = Soldier(1, x="D", y=5)
+soldier1 = Soldier(1, x="C", y=5)
 soldier2 = Soldier(2, x="F", y=19)
 soldier3 = Soldier(1, x="N", y=11)
 soldier4 = Soldier(1, x="H", y=10)
@@ -309,7 +313,12 @@ soldier7 = Soldier(1, x="K", y=13)
 
 create_castle(1,["H",1], [4, 2], 50)
 create_castle(2,["H",22], [4, 2], 50)
-pies = Tower(1,10,4,5,5)
+tower1 = Tower(1,10,4,x="D",y=5)
+tower2 = Tower(1,10,4,x="B",y=8)
+tower3 = Tower(1,10,4,x="J",y=5)
+tower4 = Tower(1,10,4,x="O",y=2)
+tower5 = Tower(1,10,4,x="Q",y=7)
+tower6 = Tower(1,10,4,x="K",y=10)
 
 
 # INTERFACE SECTION
@@ -328,7 +337,20 @@ def row_text_update(index):
         for i in range(3,6):
             if len(player1.soldier_list)>= i+1:
                 row_text[index] += "[" + str(i+1)  + " HP: \033[34m" + str(player1.soldier_list[i].hp) + "\033[00m/\033[34m10\033[00m " + "Pos: \033[34m" + str(player1.soldier_list[i].x) + "\033[00m:\033[34m" + str(player1.soldier_list[i].y) + "\033[00m]  "
-        
+    elif index == 7:
+        row_text[index] = "   Towers:"
+    elif index == 8:
+        row_text[index] = "  "
+        for i in range(3):
+            if len(player1.tower_list)>= i+1:
+                row_text[index] += "[" + str(i+1)  + " HP: \033[34m" + str(player1.tower_list[i].hp) + "\033[00m/\033[34m10\033[00m " + "Pos: \033[34m" + str(player1.tower_list[i].x) + "\033[00m:\033[34m" + str(player1.tower_list[i].y) + "\033[00m]  "
+    elif index == 9:
+        row_text[index] = "  "
+        for i in range(3,6):
+            if len(player1.tower_list)>= i+1:
+                row_text[index] += "[" + str(i+1)  + " HP: \033[34m" + str(player1.tower_list[i].hp) + "\033[00m/\033[34m10\033[00m " + "Pos: \033[34m" + str(player1.tower_list[i].x) + "\033[00m:\033[34m" + str(player1.tower_list[i].y) + "\033[00m]  "
+
+
 
 is_working = True
 while is_working:
