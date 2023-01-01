@@ -1,7 +1,11 @@
+#import section
+import keyboard
+import sys
+from time import sleep
 #glossary
 occupied = "cannot move here because this place is occupied"
 
-map_size = [18, 20]
+map_size = [19, 25]
 castles = []
 class Map_Row:
     def __init__(self, id):
@@ -31,6 +35,36 @@ class Soldier:
             return "O"
         elif self.player == 2:
             return "@"
+
+    def hp_down(self, amount):
+        self.hp -= amount
+        if self.hp <= 0:
+            self.die()
+
+    def die(self):
+        set_object(self.x, self.y, " ")
+        del self
+
+    def xy(self, x, y):  #settnig position of a soldier
+        row_list[y].col[x] = self
+        self.x = x
+        self.y = y
+
+class Tower:
+    def __init__(self, player, hp=10, ap=4, x=5, y=5): #ap stands for attack power
+        self.player = player
+        self.hp = hp
+        self.ap = ap
+        self.x = x
+        self.y = y
+        self.width = 2
+        self.height = 2
+        for a in range(self.width):
+            for b in range(self.height):
+                set_object(headshift(number_to_header[x], a), y + b, self)
+    
+    def __repr__(self):
+        return "#"
 
     def hp_down(self, amount):
         self.hp -= amount
@@ -137,55 +171,77 @@ def is_free_area(x, y, width, height): #checking if area is free
         return False
 
 def movement(walker): # mechanics of prompting for movement of soldiers
-    choice = input("Where you want to go: ")
-    if choice == "exit":
-        quit()
-    elif choice == "up":
-        if is_free(walker.x, walker.y - 1):
-            set_object(walker.x, walker.y, " ")
-            walker.xy(walker.x, walker.y - 1)
-        else:
-            print(occupied)
-    elif choice == "down":
-        if is_free(walker.x, walker.y + 1):
-            set_object(walker.x, walker.y, " ")
-            walker.xy(walker.x, walker.y + 1)
-        else:
-            print(occupied)
-    elif choice == "right":
-        if is_free(headshift(walker.x, 1), walker.y):
-            set_object(walker.x, walker.y, " ")
-            walker.xy(headshift(walker.x, 1), walker.y)
-        else:
-            print(occupied)
-    elif choice == "left":
-        if is_free(headshift(walker.x, -1), walker.y):
-            set_object(walker.x, walker.y, " ")
-            walker.xy(headshift(walker.x, -1), walker.y)
-        else:
-            print(occupied)
+    print("Press arrow:")
+    while True:
+        keyp = ""
+        keyp = keyboard.read_key()
+        for i in range(150):
+            keyboard.block_key(i)
+        if keyp == "esc":
+            for i in range(150):
+                 keyboard.unblock_key(i)
+            keyboard.send('backspace')
+            break
+        elif keyp == "up":
+            for i in range(3):
+                keyboard.send('backspace')
+            if is_free(walker.x, walker.y - 1):
+                set_object(walker.x, walker.y, " ")
+                walker.xy(walker.x, walker.y - 1)
+            else:
+                print(occupied)
+        elif keyp == "down":
+            for i in range(3):
+                keyboard.send('backspace')
+            if is_free(walker.x, walker.y + 1):
+                set_object(walker.x, walker.y, " ")
+                walker.xy(walker.x, walker.y + 1)
+            else:
+                print(occupied)
+        elif keyp == "right":
+            for i in range(3):
+                keyboard.send('backspace')
+            if is_free(headshift(walker.x, 1), walker.y):
+                set_object(walker.x, walker.y, " ")
+                walker.xy(headshift(walker.x, 1), walker.y)
+            else:
+                print(occupied)
+        elif keyp == "left":
+            for i in range(3):
+                keyboard.send('backspace')
+            if is_free(headshift(walker.x, -1), walker.y):
+                set_object(walker.x, walker.y, " ")
+                walker.xy(headshift(walker.x, -1), walker.y)
+            else:
+                print(occupied)
+        print_map()
+        print("Press arrow:")
+        sleep(0.2)
+        for i in range(150):
+            keyboard.unblock_key(i)
+
 def attack(walker): # mechanics of prompting for attack of soldier
     choice = input("Choose the direction of attack: ")
     if choice == "exit":
-        quit()
+        pass
     elif choice == "up":
         if is_free(walker.x, walker.y - 1):
             print("Nothing to attack")
             attack(walker)
         else:
-            print(occupied)
+            row_list[walker.y - 1].col[walker.x].hp_down(walker.ap)
     elif choice == "down":
         if is_free(walker.x, walker.y + 1):
             print("Nothing to attack")
             attack(walker)
         else:
-            print(occupied)
+            row_list[walker.y + 1].col[walker.x].hp_down(walker.ap)
     elif choice == "right":
         if is_free(headshift(walker.x, 1), walker.y):
             print("Nothing to attack")
             attack(walker)
         else:
-            print(occupied)
+            row_list[walker.y].col[headshift(walker.x, 1)].hp_down(walker.ap)
     elif choice == "left":
         if is_free(headshift(walker.x, -1), walker.y):
             print("Nothing to attack")
@@ -197,16 +253,18 @@ def attack(walker): # mechanics of prompting for attack of soldier
 #testing 
 soldier1 = Soldier(1)
 soldier2 = Soldier(2)
-soldier1.xy("J", 9)
+soldier1.xy("N", 12)
 soldier2.xy("I", 9)
 
 create_castle(1,["H",1], [4, 2], 10)
 create_castle(1,["H",17], [4, 2], 10)
+pies = Tower(1,10,4,5,5)
 is_working = True
 while is_working:
     print_map()
     print(soldier2.hp)
     choice = input("What you want to do: ")
+    
     if choice == "move":
         movement(soldier1)
     elif choice == "attack":
