@@ -5,10 +5,91 @@ from time import sleep
 #glossary
 occupied = "cannot move here because this place is occupied"
 
+whose_turn = 1
 def main_menu():
     options = ["Build", "Soldiers", "Towers", "End Turn", "Exit" ]
     selected = 0
+    options_str = "  "
+    for i in range(5):
+        if selected == i:
+            options_str += "\033[42m" + options[i]  + "\033[00m" + "   "
+        else:
+            options_str += options[i] + "   "
+    row_text[21] = options_str
+    print_map()
     while True:
+        keyp = ""
+        keyp = keyboard.read_key()
+        for i in range(150):
+            keyboard.block_key(i)
+        if keyp == "enter":
+            for i in range(150):
+                keyboard.unblock_key(i)
+            if selected == 1: # chosed soldier
+                options = []
+                for i in player_list[whose_turn].soldier_list:
+                    options.append(i)
+                selected = 0
+                options_str = "  "
+                for i in range(5):
+                    if selected == i:
+                        options_str += "\033[42m" + options[i]  + "\033[00m" + "   "
+                    else:
+                        options_str += options[i] + "   "
+                row_text[21] = options_str
+                print_map()
+                while True:
+                    keyp = ""
+                    keyp = keyboard.read_key()
+                    for i in range(150):
+                        keyboard.block_key(i)
+                    if keyp == "enter":
+                        if selected == 1: # chosed soldier
+                            pass
+                        if selected == 4: # chosed exit
+                            quit()
+
+                    elif keyp == "up":
+                        selected -=1
+
+                    elif keyp == "down":
+                        selected += 1
+                    elif keyp == "right":
+                        selected += 1
+                    elif keyp == "left":
+                        selected -= 1
+                    if selected >= len(options):
+                        selected = 0
+                    elif selected < 0:
+                        selected = len(options) - 1
+                    options_str = "  "
+                    for i in range(5):
+                        if selected == i:
+                            options_str += "\033[42m" + options[i]  + "\033[00m" + "   "
+                        else:
+                            options_str += options[i] + "   "
+                    row_text[21] = options_str
+                    print_map()
+                    sleep(0.2)
+                    for i in range(150):
+                        keyboard.unblock_key(i)
+
+            if selected == 4: # chosed exit
+                quit()
+
+        elif keyp == "up":
+            selected -=1
+
+        elif keyp == "down":
+            selected += 1
+        elif keyp == "right":
+            selected += 1
+        elif keyp == "left":
+            selected -= 1
+        if selected >= len(options):
+            selected = 0
+        elif selected < 0:
+            selected = len(options) - 1
         options_str = "  "
         for i in range(5):
             if selected == i:
@@ -18,9 +99,10 @@ def main_menu():
 
         row_text[21] = options_str
         print_map()
-        choice = input("Co bys chciol:")
-        if choice == "exit":
-            quit()
+        sleep(0.2)
+        for i in range(150):
+            keyboard.unblock_key(i)
+
 
         
 map_size = [19, 28]
@@ -84,12 +166,30 @@ class Soldier:
         self.y = y
         row_list[y].col[x] = self
         player_list[player - 1].soldier_list.append(self)
+        self.mstatus = 0 #menu representation, 0 - normal, 1 green highlited, 2 red highlited
+        self.colors = []
     
     def __repr__(self):
         if self.player == 1:
             return "\033[36m;\033[0m"
         elif self.player == 2:
             return "\033[91m;\033[0m"
+
+    def menu_repr(self, menu_id):
+        if self.mstatus == 0: #normal
+            if self.player == 1:
+                self.colors = ["\033[34m", "\033[00m"]
+            elif self.player == 2:
+                self.colors = ["\033[31m", "\033[00m"]
+        elif self.mstatus == 1: # highlited
+            self.colors = ["\033[42m", "\033[42m"]
+        elif self.mstatus == 2: # disable
+            self.colors = ["\033[41m", "\033[41m"]
+        
+
+        return  self.colors[1] + str(menu_id) + " HP: " + self.colors[0] + str(self.hp) + self.colors[1] + "/" + self.colors[0] + "10 " + self.colors[1]  + "Pos: "+ self.colors[0] + str(self.x) + self.colors[1] + ":" + self.colors[0] + str(self.y) + "\033[00m]  "
+
+
 
     def hp_down(self, amount):
         self.hp -= amount
@@ -396,12 +496,12 @@ def row_text_update(index):
         row_text[index] = "  "
         for i in range(3):
             if len(player1.soldier_list)>= i+1:
-                row_text[index] += "[" + str(i+1)  + " HP: \033[34m" + str(player1.soldier_list[i].hp) + "\033[00m/\033[34m10\033[00m " + "Pos: \033[34m" + str(player1.soldier_list[i].x) + "\033[00m:\033[34m" + str(player1.soldier_list[i].y) + "\033[00m]  "
+                row_text[index] += "[" + player1.soldier_list[i].menu_repr(i+1) #+ " ]" #str(i+1)  + " HP: \033[34m" + str(player1.soldier_list[i].hp) + "\033[00m/\033[34m10\033[00m " + "Pos: \033[34m" + str(player1.soldier_list[i].x) + "\033[00m:\033[34m" + str(player1.soldier_list[i].y) + "\033[00m]  "
     elif index == 4:
         row_text[index] = "  "
         for i in range(3,6):
             if len(player1.soldier_list)>= i+1:
-                row_text[index] += "[" + str(i+1)  + " HP: \033[34m" + str(player1.soldier_list[i].hp) + "\033[00m/\033[34m10\033[00m " + "Pos: \033[34m" + str(player1.soldier_list[i].x) + "\033[00m:\033[34m" + str(player1.soldier_list[i].y) + "\033[00m]  "
+                row_text[index] += "[" + player1.soldier_list[i].menu_repr(i+1)
     elif index == 6:
         row_text[index] = "   Towers:"
     elif index == 7:
@@ -451,7 +551,6 @@ def row_text_update(index):
 
 is_working = True
 while is_working:
-    print_map()
     main_menu()
     choice = input("What you want to do: ")
     
