@@ -5,7 +5,24 @@ from time import sleep
 #glossary
 occupied = "cannot move here because this place is occupied"
 
+def main_menu():
+    options = ["Build", "Soldiers", "Towers", "End Turn", "Exit" ]
+    selected = 0
+    while True:
+        options_str = "  "
+        for i in range(5):
+            if selected == i:
+                options_str += "\033[42m" + options[i]  + "\033[00m" + "   "
+            else:
+                options_str += options[i] + "   "
 
+        row_text[21] = options_str
+        print_map()
+        choice = input("Co bys chciol:")
+        if choice == "exit":
+            quit()
+
+        
 map_size = [19, 28]
 row_text=[]
 for i in range(map_size[1]):
@@ -138,7 +155,7 @@ class Tower:
         if self.player == 1: 
             return "\033[34m#\033[00m"
         elif self.player == 2:
-            return "\033[33m#\033[00m"
+            return "\033[31m#\033[00m"
 
     def hp_down(self, amount):
         self.hp -= amount
@@ -178,7 +195,7 @@ class Castle:
         if self.player == 1:
             return "\033[34mX\033[0m"
         elif self.player == 2:
-            return "\033[33mX\033[0m"
+            return "\033[31mX\033[0m"
     
     def hp_down(self, amount):
         self.hp -= amount
@@ -435,6 +452,7 @@ def row_text_update(index):
 is_working = True
 while is_working:
     print_map()
+    main_menu()
     choice = input("What you want to do: ")
     
     if choice == "move":
