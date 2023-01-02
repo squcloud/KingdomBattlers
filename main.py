@@ -18,10 +18,18 @@ class Player:
         self.name = name
         self.id = self.id_class
         self.id += 1
+        self.castle_list = []
         self.soldier_list = []
         self.tower_list = []
         self.economy_building_list = []
         self.gold = 1000
+        self.hp = 0
+    def check_hp(self):
+        hp = 0
+        for i in self.castle_list:
+            hp += i.hp
+        return hp
+
 
 player_list = []
 player1 = Player("Kuba")
@@ -156,9 +164,13 @@ class Castle:
         self.player = player
         self.position = position
         self.hp = hp
-        self.width = 4
-        self.height = 2
+        self.width = size[0]
+        self.height = size[1]
         self.income = 100
+        player_list[player-1].castle_list.append(self)
+        for x in range(self.width):
+            for y in range(self.height):
+                set_object(headshift(self.position[0], x), self.position[1] + y, self)
 
     def __repr__(self):
         if self.player == 1:
@@ -179,7 +191,7 @@ class Castle:
 
 def create_castle(player, position, size, hp):
     Castle.id += 1
-    castles.append(Castle(player, position, size, hp))
+    player.castles_list.append(Castle(player, position, size, hp))
     for x in range(size[0]):
         for y in range(size[1]):
             set_object(headshift(position[0], x), position[1] + y, castles[Castle.id - 1])
@@ -345,8 +357,9 @@ soldier7 = Soldier(1, x="K", y=13)
 #soldier1.xy("N", 12)
 #soldier2.xy("I", 9)
 
-create_castle(1,["H",1], [4, 2], 50)
-create_castle(2,["H",22], [4, 2], 50)
+castle1 = Castle(1,["H",1], [4, 2], 50)
+castle2 = Castle(2,["H",22], [4, 2], 50)
+castle3 = Castle(1,["C",15], [4, 2], 50)
 tower1 = Tower(1,10,4,x="D",y=5)
 tower2 = Tower(1,10,4,x="B",y=8)
 tower3 = Tower(1,10,4,x="J",y=5)
@@ -360,7 +373,7 @@ economy2 = Economy_building(2,1,x="B",y=22)
 # INTERFACE SECTION
 def row_text_update(index):
     if index == 1:
-        row_text[index] = "     Name:   \033[34m" + player_list[0].name.upper() + "\033[0m" + "     Castle HP: \033[34m" + str(castles[0].hp) + "\033[00m / \033[34m50\033[00m" + "  Gold: " + "\033[34m" + str(player_list[0].gold) + "\033[00m"
+        row_text[index] = "   Name: \033[34m" + player_list[0].name.upper() + "\033[0m" + "  Castle HP: \033[34m" + str(player1.check_hp()) + "\033[00m / \033[34m" + str(len(player1.castle_list)*50) + "\033[00m" + "  Gold: " + "\033[34m" + str(player_list[0].gold) + "\033[00m    Income:"
     elif index == 3:
         row_text[index] = "   Soldiers:"
     elif index == 4:
