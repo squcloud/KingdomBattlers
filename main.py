@@ -131,17 +131,17 @@ def unit_selection():
     options[0].mstatus = 1
     print_map()
     sleep(0.2)
-    print("1")
+
     for i in range(150):
         keyboard.unblock_key(i)
     while True:
-        print("2")
+
         keyp2 = ""
         keyp2 = keyboard.read_key()
-        print("3")
+
         for i in range(150):
             keyboard.block_key(i)
-        print("4")
+
         if keyp2 == "enter":
                 move_attack(options[selected])
         elif keyp2 == "esc":
@@ -172,13 +172,12 @@ def unit_selection():
 
 def unit_selection_attack(actor):
     options = []
-    for x in range(header_to_number[actor.x] - 1, header_to_number[actor.x] + 1):
-        for y in range(actor.y - 1, actor.y +1):
-            if not is_free(number_to_header[x],y):
-                print("Pies cie jebal")
-    if whose_turn == 1:
-        for i in player_list[whose_turn - 1].soldier_list:
-            options.append(i)
+    for x in range(header_to_number[actor.x] - 1, header_to_number[actor.x] + 2):
+        for y in range(actor.y - 1, actor.y +2):
+            if is_free(number_to_header[x],y) == False:
+                if row_list[y].col[number_to_header[x]] not in options:
+                    options.append(row_list[y].col[number_to_header[x]])
+    options.remove(actor)
     print(options)
     selected = 0
     options[0].mstatus = 1
