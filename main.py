@@ -7,6 +7,7 @@ occupied = "cannot move here because this place is occupied"
 
 whose_turn = 1
 def main_menu():
+    global whose_turn
     options = ["Build", "Soldiers", "Towers", "End Turn", "Exit" ]
     selected = 0
     options_str = "  "
@@ -15,7 +16,7 @@ def main_menu():
             options_str += "\033[42m" + options[i]  + "\033[00m" + "   "
         else:
             options_str += options[i] + "   "
-    row_text[21] = options_str
+    row_text[22] = options_str
     print_map()
     while True:
         keyp = ""
@@ -23,59 +24,18 @@ def main_menu():
         for i in range(150):
             keyboard.block_key(i)
         if keyp == "enter":
-            for i in range(150):
-                keyboard.unblock_key(i)
             if selected == 1: # chosed soldier
-                options = []
-                for i in player_list[whose_turn].soldier_list:
-                    options.append(i)
-                selected = 0
-                options_str = "  "
-                for i in range(5):
-                    if selected == i:
-                        options_str += "\033[42m" + options[i]  + "\033[00m" + "   "
-                    else:
-                        options_str += options[i] + "   "
-                row_text[21] = options_str
-                print_map()
-                while True:
-                    keyp = ""
-                    keyp = keyboard.read_key()
-                    for i in range(150):
-                        keyboard.block_key(i)
-                    if keyp == "enter":
-                        if selected == 1: # chosed soldier
-                            pass
-                        if selected == 4: # chosed exit
-                            quit()
-
-                    elif keyp == "up":
-                        selected -=1
-
-                    elif keyp == "down":
-                        selected += 1
-                    elif keyp == "right":
-                        selected += 1
-                    elif keyp == "left":
-                        selected -= 1
-                    if selected >= len(options):
-                        selected = 0
-                    elif selected < 0:
-                        selected = len(options) - 1
-                    options_str = "  "
-                    for i in range(5):
-                        if selected == i:
-                            options_str += "\033[42m" + options[i]  + "\033[00m" + "   "
-                        else:
-                            options_str += options[i] + "   "
-                    row_text[21] = options_str
-                    print_map()
-                    sleep(0.2)
-                    for i in range(150):
-                        keyboard.unblock_key(i)
-
-            if selected == 4: # chosed exit
+                unit_selection()
+            elif selected == 2: # chosed tower
+                tower_selection()
+            elif selected == 4: # chosed exit
                 quit()
+            elif selected == 3: #chosed end turn
+                if whose_turn == 1:
+                    whose_turn = 2
+                elif whose_turn == 2:
+                    whose_turn = 1
+                sleep(0.2)
 
         elif keyp == "up":
             selected -=1
@@ -97,14 +57,221 @@ def main_menu():
             else:
                 options_str += options[i] + "   "
 
-        row_text[21] = options_str
+        row_text[22] = options_str
         print_map()
         sleep(0.2)
         for i in range(150):
             keyboard.unblock_key(i)
 
 
-        
+def move_attack(actor):  #promting choice of action
+    options = ["Move", "Attack"]
+    selected = 0
+    options_str = "  "
+    for i in range(2):
+        if selected == i:
+            options_str += "\033[42m" + options[i]  + "\033[00m" + "   "
+        else:
+            options_str += options[i] + "   "
+    row_text[22] = options_str
+    print_map()
+    sleep(0.2)
+    for i in range(150):
+        keyboard.unblock_key(i)
+    while True:
+        keyp3 = ""
+        keyp3 = keyboard.read_key()
+        for i in range(150):
+            keyboard.block_key(i)
+        if keyp3 == "enter":
+            if selected == 0:
+                options_str = ""
+                row_text[22] = options_str
+                movement(actor)                
+            if selected == 1:
+                options_str = ""
+                row_text[22] = options_str
+                unit_selection_attack(actor)
+        elif keyp3 == "esc":
+            options_str = "   "
+            row_text[22] = options_str
+            break
+        elif keyp3 == "up":
+            selected -=1
+        elif keyp3 == "down":
+            selected += 1
+        elif keyp3 == "right":
+            selected += 1
+        elif keyp3 == "left":
+            selected -= 1
+        if selected >= len(options):
+            selected = 0
+        elif selected < 0:
+            selected = len(options) - 1
+        options_str = "  "
+        for i in range(2):
+            if selected == i:
+                options_str += "\033[42m" + options[i]  + "\033[00m" + "   "
+            else:
+                options_str += options[i] + "   "
+
+        row_text[22] = options_str
+        print_map()
+        sleep(0.2)
+        for i in range(150):
+            keyboard.unblock_key(i)
+
+
+
+def unit_selection():
+    options = []
+    for i in player_list[whose_turn - 1].soldier_list:
+        options.append(i)
+    selected = 0
+    options[0].mstatus = 1
+    print_map()
+    sleep(0.2)
+    print("1")
+    for i in range(150):
+        keyboard.unblock_key(i)
+    while True:
+        print("2")
+        keyp2 = ""
+        keyp2 = keyboard.read_key()
+        print("3")
+        for i in range(150):
+            keyboard.block_key(i)
+        print("4")
+        if keyp2 == "enter":
+                move_attack(options[selected])
+        elif keyp2 == "esc":
+            for i in options:
+                i.mstatus = 0
+            break
+
+        elif keyp2 == "up":
+            selected -=1
+
+        elif keyp2 == "down":
+            selected += 1
+        elif keyp2 == "right":
+            selected += 1
+        elif keyp2 == "left":
+            selected -= 1
+        if selected >= len(options):
+            selected = 0
+        elif selected < 0:
+            selected = len(options) - 1
+        for i in options:
+            i.mstatus = 0
+        options[selected].mstatus = 1
+        print_map()
+        sleep(0.2)
+        for i in range(150):
+            keyboard.unblock_key(i)
+
+def unit_selection_attack(actor):
+    options = []
+    for x in range(header_to_number[actor.x] - 1, header_to_number[actor.x] + 1):
+        for y in range(actor.y - 1, actor.y +1):
+            if not is_free(number_to_header[x],y):
+                print("Pies cie jebal")
+    if whose_turn == 1:
+        for i in player_list[whose_turn - 1].soldier_list:
+            options.append(i)
+    print(options)
+    selected = 0
+    options[0].mstatus = 1
+    print_map()
+    sleep(0.2)
+    for i in range(150):
+        keyboard.unblock_key(i)
+    while True:
+        keyp2 = ""
+        keyp2 = keyboard.read_key()
+        for i in range(150):
+            keyboard.block_key(i)
+        if keyp2 == "enter":
+                move_attack(options[selected])
+        elif keyp2 == "esc":
+            for i in options:
+                i.mstatus = 0
+            break
+
+        elif keyp2 == "up":
+            selected -=1
+
+        elif keyp2 == "down":
+            selected += 1
+        elif keyp2 == "right":
+            selected += 1
+        elif keyp2 == "left":
+            selected -= 1
+        if selected >= len(options):
+            selected = 0
+        elif selected < 0:
+            selected = len(options) - 1
+
+        #row_text[22] = options_str
+        for i in options:
+            i.mstatus = 0
+        options[selected].mstatus = 1
+        print_map()
+        sleep(0.2)
+        for i in range(150):
+            keyboard.unblock_key(i)
+
+def tower_selection():
+    options = []
+    for i in player_list[whose_turn - 1].tower_list:
+        options.append(i)
+    print(options)
+    selected = 0
+    options[0].mstatus = 1
+    print_map()
+    sleep(0.2)
+    for i in range(150):
+        keyboard.unblock_key(i)
+    while True:
+        keyp2 = ""
+        keyp2 = keyboard.read_key()
+        for i in range(150):
+            keyboard.block_key(i)
+        if keyp2 == "enter":
+                print("wcisnales enter")
+        elif keyp2 == "esc":
+            for i in options:
+                i.mstatus = 0
+            break
+
+        elif keyp2 == "up":
+            selected -=1
+
+        elif keyp2 == "down":
+            selected += 1
+        elif keyp2 == "right":
+            selected += 1
+        elif keyp2 == "left":
+            selected -= 1
+        if selected >= len(options):
+            selected = 0
+        elif selected < 0:
+            selected = len(options) - 1
+
+        #row_text[22] = options_str
+        for i in options:
+            i.mstatus = 0
+        options[selected].mstatus = 1
+        print_map()
+        sleep(0.2)
+        for i in range(150):
+            keyboard.unblock_key(i)
+
+
+
+
+
+
 map_size = [19, 28]
 row_text=[]
 for i in range(map_size[1]):
@@ -170,10 +337,13 @@ class Soldier:
         self.colors = []
     
     def __repr__(self):
-        if self.player == 1:
-            return "\033[36m;\033[0m"
-        elif self.player == 2:
-            return "\033[91m;\033[0m"
+        if self.mstatus == 0:
+            if self.player == 1:
+                return "\033[36m;\033[0m"
+            elif self.player == 2:
+                return "\033[91m;\033[0m"
+        elif self.mstatus == 1:
+            return "\033[42m;\033[0m"
 
     def menu_repr(self, menu_id):
         if self.mstatus == 0: #normal
@@ -250,12 +420,32 @@ class Tower:
             for b in range(self.height):
                 set_object(headshift(x, a), y + b, self)
         player_list[player - 1].tower_list.append(self)
+        self.mstatus = 0 #menu representation, 0 - normal, 1 green highlited, 2 red highlited
+        self.colors = []
     
     def __repr__(self):
-        if self.player == 1: 
-            return "\033[34m#\033[00m"
-        elif self.player == 2:
-            return "\033[31m#\033[00m"
+        if self.mstatus == 0:
+            if self.player == 1: 
+                return "\033[34m#\033[00m"
+            elif self.player == 2:
+                return "\033[31m#\033[00m"
+        elif self.mstatus == 1:
+            return "\033[42m#\033[00m"
+
+    def menu_repr(self, menu_id):
+        if self.mstatus == 0: #normal
+            if self.player == 1:
+                self.colors = ["\033[34m", "\033[00m"]
+            elif self.player == 2:
+                self.colors = ["\033[31m", "\033[00m"]
+        elif self.mstatus == 1: # highlited
+            self.colors = ["\033[42m", "\033[42m"]
+        elif self.mstatus == 2: # disable
+            self.colors = ["\033[41m", "\033[41m"]
+        
+
+        return  self.colors[1] + str(menu_id) + " HP: " + self.colors[0] + str(self.hp) + self.colors[1] + "/" + self.colors[0] + "10 " + self.colors[1]  + "Pos: "+ self.colors[0] + str(self.x) + self.colors[1] + ":" + self.colors[0] + str(self.y) + "\033[00m]  "
+
 
     def hp_down(self, amount):
         self.hp -= amount
@@ -385,14 +575,13 @@ def is_free_area(x, y, width, height): #checking if area is free
 def movement(walker): # mechanics of prompting for movement of soldiers
     print("Press arrow:")
     while True:
+        for i in range(150):
+            keyboard.unblock_key(i)
         keyp = ""
         keyp = keyboard.read_key()
         for i in range(150):
             keyboard.block_key(i)
         if keyp == "esc":
-            for i in range(150):
-                 keyboard.unblock_key(i)
-            keyboard.send('backspace')
             break
         elif keyp == "up":
             for i in range(3):
@@ -429,8 +618,7 @@ def movement(walker): # mechanics of prompting for movement of soldiers
         print_map()
         print("Press arrow:")
         sleep(0.2)
-        for i in range(150):
-            keyboard.unblock_key(i)
+
 
 def attack(walker): # mechanics of prompting for attack of soldier
     choice = input("Choose the direction of attack: ")
@@ -508,16 +696,16 @@ def row_text_update(index):
         row_text[index] = "  "
         for i in range(3):
             if len(player1.tower_list)>= i+1:
-                row_text[index] += "[" + str(i+1)  + " HP: \033[34m" + str(player1.tower_list[i].hp) + "\033[00m/\033[34m10\033[00m " + "Pos: \033[34m" + str(player1.tower_list[i].x) + "\033[00m:\033[34m" + str(player1.tower_list[i].y) + "\033[00m]  "
+                row_text[index] += "[" + player1.tower_list[i].menu_repr(i+1) #+ " ]" #str(i+1)  + " HP: \033[34m" + str(player1.soldier_list[i].hp) + "\033[00m/\033[34m10\033[00m " + "Pos: \033[34m" + str(player1.soldier_list[i].x) + "\033[00m:\033[34m" + str(player1.soldier_list[i].y) + "\033[00m]  "
     elif index == 8:
         row_text[index] = "  "
         for i in range(3,6):
             if len(player1.tower_list)>= i+1:
-                row_text[index] += "[" + str(i+1)  + " HP: \033[34m" + str(player1.tower_list[i].hp) + "\033[00m/\033[34m10\033[00m " + "Pos: \033[34m" + str(player1.tower_list[i].x) + "\033[00m:\033[34m" + str(player1.tower_list[i].y) + "\033[00m]  "
+                row_text[index] += "[" + player1.tower_list[i].menu_repr(i+1) #+ " ]" #str(i+1)  + " HP: \033[34m" + str(player1.soldier_list[i].hp) + "\033[00m/\033[34m10\033[00m " + "Pos: \033[34m" + str(player1.soldier_list[i].x) + "\033[00m:\033[34m" + str(player1.soldier_list[i].y) + "\033[00m]  "
     elif index == 9:
         row_text[index] = "  " + "-" * 73
  
-    # Interface for sexond player:
+    # Interface for second player:
     elif index == 10:
         row_text[index] = "   Name: \033[31m" + player_list[1].name.upper() + "\033[0m" + "  Castle HP: \033[31m" + str(player2.check_hp()) + "\033[00m / \033[31m" + str(len(player2.castle_list)*50) + "\033[00m" + "  Gold: " + "\033[31m" + str(player_list[1].gold) + "\033[00m $    Income: \033[31m" + str(player2.check_income()) + "\033[00m $"
     elif index == 12:
@@ -526,26 +714,32 @@ def row_text_update(index):
         row_text[index] = "  "
         for i in range(3):
             if len(player2.soldier_list)>= i+1:
-                row_text[index] += "[" + str(i+1)  + " HP: \033[31m" + str(player2.soldier_list[i].hp) + "\033[00m/\033[31m10\033[00m " + "Pos: \033[31m" + str(player2.soldier_list[i].x) + "\033[00m:\033[31m" + str(player2.soldier_list[i].y) + "\033[00m]  "
+                row_text[index] += "[" + player2.soldier_list[i].menu_repr(i+1)
     elif index == 14:
         row_text[index] = "  "
         for i in range(3,6):
             if len(player2.soldier_list)>= i+1:
-                row_text[index] += "[" + str(i+1)  + " HP: \033[31m" + str(player2.soldier_list[i].hp) + "\033[00m/\033[31m10\033[00m " + "Pos: \033[31m" + str(player2.soldier_list[i].x) + "\033[00m:\033[31m" + str(player2.soldier_list[i].y) + "\033[00m]  "
+                row_text[index] += "[" + player1.soldier_list[i].menu_repr(i+1)
     elif index == 16:
         row_text[index] = "   Towers:"
     elif index == 17:
         row_text[index] = "  "
         for i in range(3):
             if len(player2.tower_list)>= i+1:
-                row_text[index] += "[" + str(i+1)  + " HP: \033[31m" + str(player2.tower_list[i].hp) + "\033[00m/\033[31m10\033[00m " + "Pos: \033[31m" + str(player2.tower_list[i].x) + "\033[00m:\033[31m" + str(player2.tower_list[i].y) + "\033[00m]  "
+                row_text[index] += "[" + player2.tower_list[i].menu_repr(i+1) #+ " ]" #str(i+1)  + " HP: \033[34m" + str(player1.soldier_list[i].hp) + "\033[00m/\033[34m10\033[00m " + "Pos: \033[34m" + str(player1.soldier_list[i].x) + "\033[00m:\033[34m" + str(player1.soldier_list[i].y) + "\033[00m]  "
     elif index == 18:
         row_text[index] = "  "
         for i in range(3,6):
             if len(player2.tower_list)>= i+1:
-                row_text[index] += "[" + str(i+1)  + " HP: \033[31m" + str(player2.tower_list[i].hp) + "\033[00m/\033[31m10\033[00m " + "Pos: \033[31m" + str(player2.tower_list[i].x) + "\033[00m:\033[31m" + str(player2.tower_list[i].y) + "\033[00m]  "
+                row_text[index] += "[" + player2.tower_list[i].menu_repr(i+1) #+ " ]" #str(i+1)  + " HP: \033[34m" + str(player1.soldier_list[i].hp) + "\033[00m/\033[34m10\033[00m " + "Pos: \033[34m" + str(player1.soldier_list[i].x) + "\033[00m:\033[34m" + str(player1.soldier_list[i].y) + "\033[00m]  "
     elif index == 19:
         row_text[index] = "  " + "-" * 73
+    elif index == 21:
+        if whose_turn == 1:
+            row_text[index] = "\033[34m  " + player_list[whose_turn-1].name.upper() + "\033[00m turn:"
+        elif whose_turn == 2:
+            row_text[index] = "\033[31m  " + player_list[whose_turn-1].name.upper() + "\033[00m turn:"
+
 
 
 
