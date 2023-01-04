@@ -65,36 +65,57 @@ def main_menu():
 
 
 def move_attack(actor):  #promting choice of action
-    options = ["Move", "Attack"]
+    options = []
+    if actor.move_used == False:
+        options.append("Move")
+    if actor.attack_used == False:
+        options.append("Attack")
+    if len(options) == 0:
+        row_text[22] = "\033[91m    THIS UNIT HAD TURN ALREADY \033[0m"
+        print_map()
+        sleep(1)
     selected = 0
     options_str = "  "
-    for i in range(2):
-        if selected == i:
-            options_str += "\033[42m" + options[i]  + "\033[00m" + "   "
-        else:
-            options_str += options[i] + "   "
-    row_text[22] = options_str
+    if len(options) > 0:
+        for i in range(len(options)):
+            if selected == i:
+                options_str += "\033[42m" + options[i]  + "\033[00m" + "   "
+            else:
+                options_str += options[i] + "   "
+        row_text[22] = options_str
+    
     print_map()
     sleep(0.2)
     for i in range(150):
         keyboard.unblock_key(i)
-    while True:
+    if len(options) == 0:
+        for i in range(150):
+            keyboard.block_key(i)
+
+    while len(options) > 0:
+        options = []
+        if actor.move_used == False:
+            options.append("Move")
+        if actor.attack_used == False:
+            options.append("Attack")
+        if len(options) == 1:
+            selected = 0
+        print_map()
         keyp3 = ""
         keyp3 = keyboard.read_key()
         for i in range(150):
             keyboard.block_key(i)
         if keyp3 == "enter":
-            if selected == 0:
+            if options[selected] == "Move":
                 options_str = ""
                 row_text[22] = options_str
-                movement(actor)                
-            if selected == 1:
+                movement(actor)             
+            if options[selected] == "Attack":
                 options_str = ""
                 row_text[22] = options_str
-                unit_selection_attack(actor)
+                unit_selection_attack(actor) 
         elif keyp3 == "esc":
-            options_str = "   "
-            row_text[22] = options_str
+            row_text[22] = "     CHOSE YOUR UNIT     "
             break
         elif keyp3 == "up":
             selected -=1
@@ -109,7 +130,14 @@ def move_attack(actor):  #promting choice of action
         elif selected < 0:
             selected = len(options) - 1
         options_str = "  "
-        for i in range(2):
+        options = []
+        if actor.move_used == False:
+            options.append("Move")
+        if actor.attack_used == False:
+            options.append("Attack")
+        if len(options) == 1:
+            selected = 0
+        for i in range(len(options)):
             if selected == i:
                 options_str += "\033[42m" + options[i]  + "\033[00m" + "   "
             else:
@@ -120,6 +148,11 @@ def move_attack(actor):  #promting choice of action
         sleep(0.2)
         for i in range(150):
             keyboard.unblock_key(i)
+    if len(options) == 0:
+        row_text[22] = "\033[91m    THIS UNIT HAD TURN ALREADY \033[0m"
+
+        for i in range(150):
+            keyboard.block_key(i) 
 
 
 
@@ -129,13 +162,14 @@ def unit_selection():
         options.append(i)
     selected = 0
     options[0].mstatus = 1
+    row_text[22] = "     CHOSE YOUR UNIT     "
     print_map()
     sleep(0.2)
 
     for i in range(150):
         keyboard.unblock_key(i)
     while True:
-
+        row_text[22] = "     CHOSE YOUR UNIT     "
         keyp2 = ""
         keyp2 = keyboard.read_key()
 
@@ -144,6 +178,9 @@ def unit_selection():
 
         if keyp2 == "enter":
                 move_attack(options[selected])
+                for i in range(150):
+                    keyboard.block_key(i)
+                
         elif keyp2 == "esc":
             for i in options:
                 i.mstatus = 0
@@ -179,6 +216,8 @@ def unit_selection_attack(actor):
                     options.append(row_list[y].col[number_to_header[x]])
     
     options.remove(actor)
+    row_text[22] = "    CHOOSE TARGET   "
+
     for i in options:
         if i == "*":
             options.remove("*")
@@ -199,7 +238,12 @@ def unit_selection_attack(actor):
             for i in range(150):
                 keyboard.block_key(i)
             if keyp2 == "enter":
-                    move_attack(options[selected])
+                options[selected].hp_down(actor.ap)
+                actor.attack_used = True
+                for i in options:
+                    i.mstatus = 0  
+                break
+
             elif keyp2 == "esc":
                 for i in options:
                     i.mstatus = 0
@@ -342,6 +386,8 @@ class Soldier:
         player_list[player - 1].soldier_list.append(self)
         self.mstatus = 0 #menu representation, 0 - normal, 1 green highlited, 2 red highlited
         self.colors = []
+        self.move_used = False
+        self.attack_used = False
     
     def __repr__(self):
         if self.mstatus == 0:
@@ -601,8 +647,10 @@ def movement(walker): # mechanics of prompting for movement of soldiers
         for i in range(150):
             keyboard.block_key(i)
         if keyp == "esc":
+            walker.move_used = True
             break
         if keyp == "enter":
+            walker.move_used = True
             break
         elif keyp == "up":
             for i in range(3):
@@ -649,9 +697,11 @@ def movement(walker): # mechanics of prompting for movement of soldiers
         row_text[22] = "    STEPS LEFT: " + str(steps_left)
         print_map()
         sleep(0.2)
+    walker.move_used = True
 
 
-def attack(walker): # mechanics of prompting for attack of soldier
+
+def attack(walker): # mechanics of attack
     choice = input("Choose the direction of attack: ")
     if choice == "exit":
         pass
@@ -682,7 +732,7 @@ def attack(walker): # mechanics of prompting for attack of soldier
 
 
 #testing 
-soldier1 = Soldier(1, x="C", y=5, ap=20)
+soldier1 = Soldier(1, x="C", y=5, ap=4)
 soldier2 = Soldier(2, x="F", y=19)
 soldier3 = Soldier(1, x="N", y=11)
 soldier4 = Soldier(1, x="H", y=10)
