@@ -35,6 +35,12 @@ def main_menu():
                     whose_turn = 2
                 elif whose_turn == 2:
                     whose_turn = 1
+                for i in player_list:
+                    for u in i.soldier_list:
+                        u.move_used = False
+                        u.attack_used = False
+                    for o in i.tower_list:
+                        o.attack_used = False
                 sleep(0.2)
 
         elif keyp == "up":
@@ -109,13 +115,27 @@ def move_attack(actor):  #promting choice of action
             if options[selected] == "Move":
                 options_str = ""
                 row_text[22] = options_str
-                movement(actor)             
+                movement(actor)
+                if actor.move_used == True and actor.attack_used == True:
+                    row_text[22] = "     CHOOSE YOUR UNIT     "
+                    for i in range(150):
+                        keyboard.unblock_key(i)
+                    break          
             if options[selected] == "Attack":
                 options_str = ""
                 row_text[22] = options_str
                 unit_selection_attack(actor) 
+                if actor.move_used == True and actor.attack_used == True:
+                    for i in range(150):
+                        keyboard.unblock_key(i)
+                    row_text[22] = "     CHOOSE YOUR UNIT     "
+                    break   
+
+                sleep(0.2)
         elif keyp3 == "esc":
             row_text[22] = "     CHOSE YOUR UNIT     "
+            for i in range(150):
+                keyboard.unblock_key(i)
             break
         elif keyp3 == "up":
             selected -=1
@@ -148,11 +168,13 @@ def move_attack(actor):  #promting choice of action
         sleep(0.2)
         for i in range(150):
             keyboard.unblock_key(i)
+        
     if len(options) == 0:
         row_text[22] = "\033[91m    THIS UNIT HAD TURN ALREADY \033[0m"
-
+        sleep(0.2)
+        row_text[22] = "\033[91m    CHOOSE YOUR UNIT \033[0m"
         for i in range(150):
-            keyboard.block_key(i) 
+            keyboard.unblock_key(i) 
 
 
 
@@ -180,6 +202,10 @@ def unit_selection():
                 move_attack(options[selected])
                 for i in range(150):
                     keyboard.block_key(i)
+                options = []
+                for i in player_list[whose_turn - 1].soldier_list:
+                    options.append(i)
+                selected = 0
                 
         elif keyp2 == "esc":
             for i in options:
@@ -241,8 +267,10 @@ def unit_selection_attack(actor):
                 options[selected].hp_down(actor.ap)
                 actor.attack_used = True
                 for i in options:
-                    i.mstatus = 0  
+                    i.mstatus = 0 
+                sleep(0.2) 
                 break
+
 
             elif keyp2 == "esc":
                 for i in options:
@@ -272,11 +300,88 @@ def unit_selection_attack(actor):
             for i in range(150):
                 keyboard.unblock_key(i)
 
+def unit_selection_attack_tower(actor):
+    if actor.attack_used == True:
+        row_text[22] = "\033[91m    THIS UNIT HAD TURN ALREADY \033[0m"
+        print_map()
+        sleep(1)
+        row_text[22] = "\033[91m    CHOOSE YOUR TOWER \033[0m"
+    else:
+        options = []
+        for x in range(header_to_number[actor.x] - 3, header_to_number[actor.x] + 4):
+            for y in range(actor.y - 3, actor.y +4):
+                if is_free(number_to_header[x],y) == False:
+                    if row_list[y].col[number_to_header[x]] not in options:
+                        options.append(row_list[y].col[number_to_header[x]])
+        
+        options.remove(actor)
+        row_text[22] = "    CHOOSE TARGET   "
+
+        for i in options:
+            if i == "*":
+                options.remove("*")
+        if len(options) == 0:
+            row_text[22] = "\033[91m    THERE IS NOTHING TO ATTACK!  \033[0m"
+            print_map()
+            sleep(1)
+            row_text[22] = "\033[91m    CHOOSE YOUR TOWER \033[0m"
+        else:
+            selected = 0
+            options[0].mstatus = 1
+            print_map()
+            sleep(0.2)
+            for i in range(150):
+                keyboard.unblock_key(i)
+            while True:
+                keyp2 = ""
+                keyp2 = keyboard.read_key()
+                for i in range(150):
+                    keyboard.block_key(i)
+                if keyp2 == "enter":
+                    options[selected].hp_down(actor.ap)
+                    actor.attack_used = True
+                    for i in options:
+                        i.mstatus = 0 
+                    sleep(0.2) 
+                    row_text[22] = "     CHOOSE YOU TOWER"
+                    break
+
+
+                elif keyp2 == "esc":
+                    for i in options:
+                        i.mstatus = 0
+                    row_text[22] = "     CHOOSE YOU TOWER"
+                    break
+
+                elif keyp2 == "up":
+                    selected -=1
+
+                elif keyp2 == "down":
+                    selected += 1
+                elif keyp2 == "right":
+                    selected += 1
+                elif keyp2 == "left":
+                    selected -= 1
+                if selected >= len(options):
+                    selected = 0
+                elif selected < 0:
+                    selected = len(options) - 1
+
+                #row_text[22] = options_str
+                for i in options:
+                    i.mstatus = 0
+                options[selected].mstatus = 1
+                print_map()
+                sleep(0.2)
+                for i in range(150):
+                    keyboard.unblock_key(i)
+
+
+
 def tower_selection():
     options = []
     for i in player_list[whose_turn - 1].tower_list:
         options.append(i)
-    print(options)
     selected = 0
     options[0].mstatus = 1
     print_map()
@@ -289,7 +394,10 @@ def tower_selection():
         for i in range(150):
             keyboard.block_key(i)
         if keyp2 == "enter":
-                print("wcisnales enter")
+            unit_selection_attack_tower(options[selected])
+            options = []
+            for i in player_list[whose_turn - 1].tower_list:
+                options.append(i)
         elif keyp2 == "esc":
             for i in options:
                 i.mstatus = 0
@@ -465,7 +573,7 @@ class Economy_building:
 
 
 class Tower:
-    def __init__(self, player, hp=10, ap=5, x="B", y=5): #ap stands for attack power
+    def __init__(self, player, hp=10, ap=10, x="B", y=5): #ap stands for attack power
         self.player = player
         self.hp = hp
         self.ap = ap
@@ -479,6 +587,7 @@ class Tower:
         player_list[player - 1].tower_list.append(self)
         self.mstatus = 0 #menu representation, 0 - normal, 1 green highlited, 2 red highlited
         self.colors = []
+        self.attack_used = False
     
     def __repr__(self):
         if self.mstatus == 0:
@@ -617,10 +726,13 @@ def print_map():
     print("      " + map_size[0] * 4 * "-" + "-")
 
 def is_free(x, y): #checking if position is free
-    if row_list[y].col[x] == " ":
-        return True
+    if header_to_number[x] < map_size[0] and y <= map_size[1] and header_to_number[x] >= 0 and y >= 0:
+        if row_list[y].col[x] == " ":
+            return True
+        else:
+            return False
     else:
-        return False
+        return True
 def is_free_area(x, y, width, height): #checking if area is free
     for a in range(width):
         for b in range(height):
@@ -732,7 +844,7 @@ def attack(walker): # mechanics of attack
 
 
 #testing 
-soldier1 = Soldier(1, x="C", y=5, ap=4)
+soldier1 = Soldier(1, x="C", y=5, ap=10)
 soldier2 = Soldier(2, x="F", y=19)
 soldier3 = Soldier(1, x="N", y=11)
 soldier4 = Soldier(1, x="H", y=10)
@@ -745,12 +857,12 @@ soldier7 = Soldier(1, x="K", y=13)
 castle1 = Castle(1,["H",1], [4, 2], 50)
 castle2 = Castle(2,["H",25], [4, 2], 50)
 castle3 = Castle(1,["C",15], [4, 2], 50)
-tower1 = Tower(1,10,4,x="D",y=5)
-tower2 = Tower(1,10,4,x="B",y=8)
-tower3 = Tower(1,10,4,x="J",y=5)
-tower4 = Tower(2,10,4,x="M",y=19)
-tower5 = Tower(1,10,4,x="Q",y=7)
-tower6 = Tower(1,10,4,x="K",y=10)
+tower1 = Tower(1,10,10,x="D",y=5)
+tower2 = Tower(1,10,10,x="B",y=8)
+tower3 = Tower(1,10,10,x="J",y=5)
+tower4 = Tower(2,10,10,x="M",y=19)
+tower5 = Tower(1,10,10,x="Q",y=7)
+tower6 = Tower(1,10,10,x="K",y=10)
 
 economy1 = Economy_building(1,1,x="F",y=2)
 economy2 = Economy_building(2,1,x="B",y=22)
