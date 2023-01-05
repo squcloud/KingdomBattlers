@@ -5,10 +5,12 @@ from time import sleep
 #glossary
 occupied = "\033[31m   CAN'T MOVE HERE BECAUSE THIS PLACE IS OCCUPIED! \033[00m"
 
+num_of_soldiers = 0
+
 whose_turn = 1
 def main_menu():
     global whose_turn
-    options = ["Build", "Soldiers", "Towers", "End Turn", "Exit" ]
+    options = ["Buy", "Soldiers", "Towers", "End Turn", "Exit" ]
     selected = 0
     options_str = "  "
     for i in range(5):
@@ -25,9 +27,26 @@ def main_menu():
             keyboard.block_key(i)
         if keyp == "enter":
             if selected == 1: # chosed soldier
-                unit_selection()
+                if len(player_list[whose_turn - 1].soldier_list) > 0:
+                    unit_selection()
+                else:
+                    row_text[22] = "     YOU DON'T HAVE ANY SOLDIERS"
+                    print_map()
+                    sleep(1)
+                    row_text[22] = options_str
+                    print_map()
             elif selected == 2: # chosed tower
-                tower_selection()
+                if len(player_list[whose_turn - 1].tower_list) > 0:
+                    tower_selection()
+                else:
+                    row_text[22] = "     YOU DON'T HAVE ANY TOWERS"
+                    print_map()
+                    sleep(1)
+                    row_text[22] = options_str
+                    print_map()
+            elif selected == 0: # chosed buy
+                sleep(0.1)
+                buy()
             elif selected == 4: # chosed exit
                 quit()
             elif selected == 3: #chosed end turn
@@ -35,6 +54,8 @@ def main_menu():
                     whose_turn = 2
                 elif whose_turn == 2:
                     whose_turn = 1
+                    for player in player_list:
+                        player.gold += player.check_income()
                 for i in player_list:
                     for u in i.soldier_list:
                         u.move_used = False
@@ -89,7 +110,6 @@ def move_attack(actor):  #promting choice of action
             else:
                 options_str += options[i] + "   "
         row_text[22] = options_str
-    
     print_map()
     sleep(0.2)
     for i in range(150):
@@ -175,6 +195,140 @@ def move_attack(actor):  #promting choice of action
         row_text[22] = "\033[91m    CHOOSE YOUR UNIT \033[0m"
         for i in range(150):
             keyboard.unblock_key(i) 
+
+
+def buy():  #promting choice of what to buy
+    options = ["Soldier  300$", "Tower  700$", "Economy Building  500$"]
+    selected = 0
+    options_str = "  "
+    for i in range(len(options)):
+        if selected == i:
+                options_str += "\033[42m" + options[i]  + "\033[00m" + "   "
+        else:
+                options_str += options[i] + "    "
+    row_text[22] = options_str
+    print_map()
+    while True:
+        sleep(0.1)
+        for i in range(150):
+            keyboard.unblock_key(i)
+        options = ["Soldier  300$", "Tower  700$", "Economy Building  500$"]
+        options_str = "  "
+        for i in range(len(options)):
+            if selected == i:
+                    options_str += "\033[42m" + options[i]  + "\033[00m" + "   "
+            else:
+                    options_str += options[i] + "    "
+        row_text[22] = options_str
+        print_map()
+        keyp3 = ""
+        keyp3 = keyboard.read_key()
+        for i in range(150):
+            keyboard.block_key(i)
+        if keyp3 == "enter":
+            if options[selected] == "Soldier  300$":
+                sleep(0.1)
+                if player_list[whose_turn-1].gold >= 300:
+                    player_list[whose_turn-1].gold -= 300
+                    buy_soldier()
+                else:
+                    row_text[22] = "   YOU DON'T HAVE ENOUGH MONEY"
+                    print_map()
+                    sleep(1)
+                #for i in range(150):
+                 #   keyboard.unblock_key(i)
+                break          
+            if options[selected] == "Attack":
+                options_str = ""
+                row_text[22] = options_str
+                unit_selection_attack(actor) 
+                if actor.move_used == True and actor.attack_used == True:
+                    for i in range(150):
+                        keyboard.unblock_key(i)
+                    row_text[22] = "     CHOOSE YOUR UNIT     "
+                    break   
+
+                sleep(0.2)
+        elif keyp3 == "esc":
+            break
+        elif keyp3 == "up":
+            selected -=1
+        elif keyp3 == "down":
+            selected += 1
+        elif keyp3 == "right":
+            selected += 1
+        elif keyp3 == "left":
+            selected -= 1
+        if selected >= len(options):
+            selected = 0
+        elif selected < 0:
+            selected = len(options) - 1
+        options_str = "  "
+        for i in range(len(options)):
+            if selected == i:
+                options_str += "\033[42m" + options[i]  + "\033[00m" + "   "
+            else:
+                options_str += options[i] + "    "
+        row_text[22] = options_str
+        print_map()
+        sleep(0.2)
+
+
+def buy_soldier():
+    global num_of_soldiers
+    if whose_turn == 1:
+        if len(player_list[whose_turn - 1].soldier_list) >= 6:
+            row_text[22] = "   TOO MANY SOLDIERS!!"
+            print_map()
+            sleep(1)     
+        else:       
+            if is_free("I", 3):
+                globals()[f"soldier{num_of_soldiers}"] = Soldier(whose_turn, 10, 2, "I", 3)
+                set_object("I", 3, globals()[f"soldier{num_of_soldiers}"])
+                num_of_soldiers += 1
+            elif is_free("J", 3):
+                globals()[f"soldier{num_of_soldiers}"] = Soldier(whose_turn, 10, 2, "J", 3)
+                set_object("J", 3, globals()[f"soldier{num_of_soldiers}"])
+                num_of_soldiers += 1     
+            elif is_free("H", 3):
+                globals()[f"soldier{num_of_soldiers}"] = Soldier(whose_turn, 10, 2, "H", 3)
+                set_object("H", 3, globals()[f"soldier{num_of_soldiers}"])
+                num_of_soldiers += 1    
+            elif is_free("K", 3):
+                globals()[f"soldier{num_of_soldiers}"] = Soldier(whose_turn, 10, 2, "K", 3)
+                set_object("K", 3, globals()[f"soldier{num_of_soldiers}"])
+                num_of_soldiers += 1  
+            else:
+                row_text[22] = "   YOU DON'T HAVE ENOUGH SPACE!!"
+                print_map()
+                sleep(1)
+    elif whose_turn == 2:
+        if len(player_list[whose_turn - 1].soldier_list) >= 6:
+            row_text[22] = "   TOO MANY SOLDIERS!!"
+            print_map()
+            sleep(1)     
+        else:       
+            if is_free("I", 24):
+                globals()[f"soldier{num_of_soldiers}"] = Soldier(whose_turn, 10, 2, "I", 24)
+                set_object("I", 24, globals()[f"soldier{num_of_soldiers}"])
+                num_of_soldiers += 1
+            elif is_free("J", 24):
+                globals()[f"soldier{num_of_soldiers}"] = Soldier(whose_turn, 10, 2, "J", 24)
+                set_object("J", 24, globals()[f"soldier{num_of_soldiers}"])
+                num_of_soldiers += 1     
+            elif is_free("H", 24):
+                globals()[f"soldier{num_of_soldiers}"] = Soldier(whose_turn, 10, 2, "H", 24)
+                set_object("H", 24, globals()[f"soldier{num_of_soldiers}"])
+                num_of_soldiers += 1    
+            elif is_free("K", 24):
+                globals()[f"soldier{num_of_soldiers}"] = Soldier(whose_turn, 10, 2, "K", 24)
+                set_object("K", 3, globals()[f"soldier{num_of_soldiers}"])
+                num_of_soldiers += 1  
+            else:
+                row_text[22] = "   YOU DON'T HAVE ENOUGH SPACE!!"
+                print_map()
+                sleep(1)
+
 
 
 
@@ -484,6 +638,7 @@ class Map_Row:
             print("  " + str(self.id) + " |" + row_str + "|" + row_text[self.id])
 
 class Soldier:
+    price = 300
     def __init__(self, player, hp=10, ap=2, x="B", y=5): #ap stands for attack power
         self.player = player
         self.hp = hp
@@ -538,6 +693,7 @@ class Soldier:
         self.y = y
 
 class Economy_building:
+    price = 400
     def __init__(self, player, hp=10, x="B", y=5):
         self.player = player
         self.hp = hp
@@ -573,6 +729,7 @@ class Economy_building:
 
 
 class Tower:
+    price = 700
     def __init__(self, player, hp=10, ap=10, x="B", y=5): #ap stands for attack power
         self.player = player
         self.hp = hp
@@ -844,7 +1001,7 @@ def attack(walker): # mechanics of attack
 
 
 #testing 
-soldier1 = Soldier(1, x="C", y=5, ap=10)
+"""soldier1 = Soldier(1, x="C", y=5, ap=10)
 soldier2 = Soldier(2, x="F", y=19)
 soldier3 = Soldier(1, x="N", y=11)
 soldier4 = Soldier(1, x="H", y=10)
@@ -854,8 +1011,10 @@ soldier7 = Soldier(1, x="K", y=13)
 #soldier1.xy("N", 12)
 #soldier2.xy("I", 9)
 
+"""
 castle1 = Castle(1,["H",1], [4, 2], 50)
 castle2 = Castle(2,["H",25], [4, 2], 50)
+"""
 castle3 = Castle(1,["C",15], [4, 2], 50)
 tower1 = Tower(1,10,10,x="D",y=5)
 tower2 = Tower(1,10,10,x="B",y=8)
@@ -866,7 +1025,7 @@ tower6 = Tower(1,10,10,x="K",y=10)
 
 economy1 = Economy_building(1,1,x="F",y=2)
 economy2 = Economy_building(2,1,x="B",y=22)
-
+"""
 # INTERFACE SECTION
 def row_text_update(index):
     if index == 0:
@@ -912,7 +1071,7 @@ def row_text_update(index):
         row_text[index] = "  "
         for i in range(3,6):
             if len(player2.soldier_list)>= i+1:
-                row_text[index] += "[" + player1.soldier_list[i].menu_repr(i+1)
+                row_text[index] += "[" + player2.soldier_list[i].menu_repr(i+1)
     elif index == 16:
         row_text[index] = "   Towers:"
     elif index == 17:
