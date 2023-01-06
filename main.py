@@ -6,7 +6,8 @@ from time import sleep
 occupied = "\033[31m   CAN'T MOVE HERE BECAUSE THIS PLACE IS OCCUPIED! \033[00m"
 
 num_of_soldiers = 0
-
+num_of_towers = 0
+selectable_list = []
 whose_turn = 1
 def main_menu():
     global whose_turn
@@ -229,7 +230,6 @@ def buy():  #promting choice of what to buy
             if options[selected] == "Soldier  300$":
                 sleep(0.1)
                 if player_list[whose_turn-1].gold >= 300:
-                    player_list[whose_turn-1].gold -= 300
                     buy_soldier()
                 else:
                     row_text[22] = "   YOU DON'T HAVE ENOUGH MONEY"
@@ -238,17 +238,17 @@ def buy():  #promting choice of what to buy
                 #for i in range(150):
                  #   keyboard.unblock_key(i)
                 break          
-            if options[selected] == "Attack":
-                options_str = ""
-                row_text[22] = options_str
-                unit_selection_attack(actor) 
-                if actor.move_used == True and actor.attack_used == True:
-                    for i in range(150):
-                        keyboard.unblock_key(i)
-                    row_text[22] = "     CHOOSE YOUR UNIT     "
-                    break   
-
-                sleep(0.2)
+            if options[selected] == "Tower  700$":
+                sleep(0.1)
+                if player_list[whose_turn-1].gold >= 700:
+                    buy_tower()
+                else:
+                    row_text[22] = "   YOU DON'T HAVE ENOUGH MONEY"
+                    print_map()
+                    sleep(1)
+                #for i in range(150):
+                 #   keyboard.unblock_key(i)
+                break     
         elif keyp3 == "esc":
             break
         elif keyp3 == "up":
@@ -286,18 +286,22 @@ def buy_soldier():
                 globals()[f"soldier{num_of_soldiers}"] = Soldier(whose_turn, 10, 2, "I", 3)
                 set_object("I", 3, globals()[f"soldier{num_of_soldiers}"])
                 num_of_soldiers += 1
+                player_list[whose_turn-1].gold -= 300
             elif is_free("J", 3):
                 globals()[f"soldier{num_of_soldiers}"] = Soldier(whose_turn, 10, 2, "J", 3)
                 set_object("J", 3, globals()[f"soldier{num_of_soldiers}"])
                 num_of_soldiers += 1     
+                player_list[whose_turn-1].gold -= 300
             elif is_free("H", 3):
                 globals()[f"soldier{num_of_soldiers}"] = Soldier(whose_turn, 10, 2, "H", 3)
                 set_object("H", 3, globals()[f"soldier{num_of_soldiers}"])
-                num_of_soldiers += 1    
+                num_of_soldiers += 1  
+                player_list[whose_turn-1].gold -= 300  
             elif is_free("K", 3):
                 globals()[f"soldier{num_of_soldiers}"] = Soldier(whose_turn, 10, 2, "K", 3)
                 set_object("K", 3, globals()[f"soldier{num_of_soldiers}"])
                 num_of_soldiers += 1  
+                player_list[whose_turn-1].gold -= 300
             else:
                 row_text[22] = "   YOU DON'T HAVE ENOUGH SPACE!!"
                 print_map()
@@ -312,22 +316,203 @@ def buy_soldier():
                 globals()[f"soldier{num_of_soldiers}"] = Soldier(whose_turn, 10, 2, "I", 24)
                 set_object("I", 24, globals()[f"soldier{num_of_soldiers}"])
                 num_of_soldiers += 1
+                player_list[whose_turn-1].gold -= 300
             elif is_free("J", 24):
                 globals()[f"soldier{num_of_soldiers}"] = Soldier(whose_turn, 10, 2, "J", 24)
                 set_object("J", 24, globals()[f"soldier{num_of_soldiers}"])
-                num_of_soldiers += 1     
+                num_of_soldiers += 1   
+                player_list[whose_turn-1].gold -= 300  
             elif is_free("H", 24):
                 globals()[f"soldier{num_of_soldiers}"] = Soldier(whose_turn, 10, 2, "H", 24)
                 set_object("H", 24, globals()[f"soldier{num_of_soldiers}"])
-                num_of_soldiers += 1    
+                num_of_soldiers += 1  
+                player_list[whose_turn-1].gold -= 300  
             elif is_free("K", 24):
                 globals()[f"soldier{num_of_soldiers}"] = Soldier(whose_turn, 10, 2, "K", 24)
                 set_object("K", 3, globals()[f"soldier{num_of_soldiers}"])
-                num_of_soldiers += 1  
+                num_of_soldiers += 1 
+                player_list[whose_turn-1].gold -= 300 
             else:
                 row_text[22] = "   YOU DON'T HAVE ENOUGH SPACE!!"
                 print_map()
                 sleep(1)
+
+def buy_tower():
+    global num_of_towers
+    global selectable_list
+    if whose_turn == 1:
+        if len(player_list[whose_turn - 1].tower_list) >= 6:
+            row_text[22] = "   TOO MANY TOWERS!!"
+            print_map()
+            sleep(1)   
+        else:
+            for x in list(map(chr, range(65, 65 + map_size[0]))):
+                for y in range(0, map_size[1] // 2):
+                    if is_free(x,y): 
+                        set_object(x, y, Selectable(x, y))
+            selected = 0
+            selectable_list[selected].selected = True
+            row_text[22] = "     SELECT PLACE WHERE YOU WANT TO PUT YOUR TOWER     "
+            print_map()
+            sleep(0.2)
+            while True:
+                row_text[22] = "     SELECT PLACE WHERE YOU WANT TO PUT YOUR TOWER     "
+                keyp2 = ""
+                #keyp2 = keyboard.read_hotkey()
+                #print(keyp2)
+                """if keyp2 == "enter":
+                        move_attack(options[selected])
+                        for i in range(150):
+                            keyboard.block_key(i)
+                        options = []
+                        for i in player_list[whose_turn - 1].soldier_list:
+                            options.append(i)
+                        selected = 0"""
+                if keyboard.is_pressed("enter"):
+                    choosed_x = selectable_list[selected].x
+                    choosed_y = selectable_list[selected].y
+                    for i in selectable_list:
+                        i.selected = False
+                    for i in selectable_list:
+                        set_object(i.x, i.y, " ")
+                    selectable_list = []
+                    if is_free_area(choosed_x, choosed_y, 2, 2):
+                        player_list[whose_turn-1].gold -= 700
+                        set_object(choosed_x, choosed_y, Tower(whose_turn, x=choosed_x, y=choosed_y))
+                    else:
+                        row_text[22] = "   NOT ENOUGH SPACE FOR TOWER!!!"
+                        print_map()
+                        sleep(1)
+                    break
+                elif keyboard.is_pressed("esc"):
+                    for i in selectable_list:
+                        i.selected = False
+                    for i in selectable_list:
+                        set_object(i.x, i.y, " ")
+                    selectable_list = []
+                    break
+                elif keyboard.is_pressed("up"):
+                    selected -= 1
+                elif keyboard.is_pressed("down"):
+                    selected += 1
+                elif keyboard.is_pressed("right"):
+                    for i in range(len(selectable_list)):
+                        if selectable_list[i].y == selectable_list[selected].y and header_to_number[selectable_list[i].x] > header_to_number[selectable_list[selected].x]:
+                            selected = i
+                            sleep(0.05)
+                            break
+                elif keyboard.is_pressed("left"):
+                    for i in reversed(range(len(selectable_list))):
+                        if selectable_list[i].y == selectable_list[selected].y and header_to_number[selectable_list[i].x] < header_to_number[selectable_list[selected].x]:
+                            selected = i
+                            sleep(0.05)
+                            break
+                if selected >= len(selectable_list):
+                    selected = 0
+                elif selected < 0:
+                    selected = len(selectable_list) - 1
+
+                for i in selectable_list:
+                    i.selected = False
+                selectable_list[selected].selected = True
+                print_map()
+                sleep(0.1)
+    elif whose_turn == 2:
+        if len(player_list[whose_turn - 1].tower_list) >= 6:
+            row_text[22] = "   TOO MANY TOWERS!!"
+            print_map()
+            sleep(1)   
+        else:
+            for x in list(map(chr, range(65, 65 + map_size[0]))):
+                for y in range(map_size[1]//2, map_size[1]):
+                    if is_free(x,y): 
+                        set_object(x, y, Selectable(x, y))
+            selected = 0
+            selectable_list[selected].selected = True
+            row_text[22] = "     SELECT PLACE WHERE YOU WANT TO PUT YOUR TOWER     "
+            print_map()
+            sleep(0.2)
+            while True:
+                row_text[22] = "     SELECT PLACE WHERE YOU WANT TO PUT YOUR TOWER     "
+                keyp2 = ""
+                #keyp2 = keyboard.read_hotkey()
+                #print(keyp2)
+                """if keyp2 == "enter":
+                        move_attack(options[selected])
+                        for i in range(150):
+                            keyboard.block_key(i)
+                        options = []
+                        for i in player_list[whose_turn - 1].soldier_list:
+                            options.append(i)
+                        selected = 0"""
+                if keyboard.is_pressed("enter"):
+                    choosed_x = selectable_list[selected].x
+                    choosed_y = selectable_list[selected].y
+                    for i in selectable_list:
+                        i.selected = False
+                    for i in selectable_list:
+                        set_object(i.x, i.y, " ")
+                    selectable_list = []
+                    if is_free_area(choosed_x, choosed_y, 2, 2):
+                        player_list[whose_turn-1].gold -= 700
+                        set_object(choosed_x, choosed_y, Tower(whose_turn, x=choosed_x, y=choosed_y))
+                    else:
+                        row_text[22] = "   NOT ENOUGH SPACE FOR TOWER!!!"
+                        print_map()
+                        sleep(1)
+                    break
+                elif keyboard.is_pressed("esc"):
+                    for i in selectable_list:
+                        i.selected = False
+                    for i in selectable_list:
+                        set_object(i.x, i.y, " ")
+                    selectable_list = []
+                    break
+                elif keyboard.is_pressed("up"):
+                    selected -= 1
+                elif keyboard.is_pressed("down"):
+                    selected += 1
+                elif keyboard.is_pressed("right"):
+                    for i in range(len(selectable_list)):
+                        if selectable_list[i].y == selectable_list[selected].y and header_to_number[selectable_list[i].x] > header_to_number[selectable_list[selected].x]:
+                            selected = i
+                            sleep(0.05)
+                            break
+                elif keyboard.is_pressed("left"):
+                    for i in reversed(range(len(selectable_list))):
+                        if selectable_list[i].y == selectable_list[selected].y and header_to_number[selectable_list[i].x] < header_to_number[selectable_list[selected].x]:
+                            selected = i
+                            sleep(0.05)
+                            break
+                if selected >= len(selectable_list):
+                    selected = 0
+                elif selected < 0:
+                    selected = len(selectable_list) - 1
+
+                for i in selectable_list:
+                    i.selected = False
+                selectable_list[selected].selected = True
+                print_map()
+                sleep(0.1)
+
+
+
+
+
+    elif whose_turn == 2:
+        if len(player_list[whose_turn - 1].tower_list) >= 6:
+            row_text[22] = "   TOO MANY TOWERS!!"
+            print_map()
+            sleep(1)   
+        else:
+            for x in list(map(chr, range(65, 65 + map_size[0]))):
+                for y in range(map_size[1] // 2, map_size[1]):
+                    if is_free(x,y): 
+                        set_object(x, y, Selectable(x, y))
+
+    
+    #globals()[f"soldier{num_of_towers}"] = Tower(whose_turn, 10, 2, "H", 10)
+    #num_of_towers += 1    
 
 
 
@@ -589,6 +774,21 @@ map_size = [19, 28]
 row_text=[]
 for i in range(map_size[1]):
     row_text.append(" ")
+
+class Selectable:
+    def __repr__(self):
+        if self.selected == False:
+            return "\033[43m \033[0m"
+        else:
+            return "\033[42m \033[0m"
+
+    
+    def __init__(self, x, y, selected = False):
+        self.x = x
+        self.y = y
+        self.selected = selected
+        selectable_list.append(self)
+
 
 class Player:
     id_class = 0
@@ -893,7 +1093,7 @@ def is_free(x, y): #checking if position is free
 def is_free_area(x, y, width, height): #checking if area is free
     for a in range(width):
         for b in range(height):
-            if row_list[y + b].col[headshift(x, b)] != " ":
+            if row_list[y + b].col[headshift(x, b+1)] != " ":
                 return False
     return True
 
