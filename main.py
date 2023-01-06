@@ -22,6 +22,20 @@ def main_menu():
     row_text[22] = options_str
     print_map()
     while True:
+        if player1.check_hp() <= 0:
+            for i in range(15):
+                print()
+            print("                  " + str(player2.name) + " WON!!!!")
+            for i in range(15):
+                print()
+            quit()
+        elif player2.check_hp() <= 0:
+            for i in range(15):
+                print()
+            print("                  " + str(player2.name) + " WON!!!!")
+            for i in range(15):
+                print()
+            quit()
         keyp = ""
         keyp = keyboard.read_key()
         for i in range(150):
@@ -120,6 +134,20 @@ def move_attack(actor):  #promting choice of action
             keyboard.block_key(i)
 
     while len(options) > 0:
+        if player1.check_hp() <= 0:
+            for i in range(15):
+                print()
+            print("                  " + str(player2.name) + " WON!!!!")
+            for i in range(15):
+                print()
+            quit()
+        elif player2.check_hp() <= 0:
+            for i in range(15):
+                print()
+            print("                  " + str(player2.name) + " WON!!!!")
+            for i in range(15):
+                print()
+            quit()
         options = []
         if actor.move_used == False:
             options.append("Move")
@@ -637,6 +665,20 @@ def unit_selection():
     for i in range(150):
         keyboard.unblock_key(i)
     while True:
+        if player1.check_hp() <= 0:
+            for i in range(15):
+                print()
+            print("                  " + str(player2.name) + " WON!!!!")
+            for i in range(15):
+                print()
+            quit()
+        elif player2.check_hp() <= 0:
+            for i in range(15):
+                print()
+            print("                  " + str(player2.name) + " WON!!!!")
+            for i in range(15):
+                print()
+            quit()
         row_text[22] = "     CHOSE YOUR UNIT     "
         keyp2 = ""
         keyp2 = keyboard.read_key()
@@ -704,7 +746,23 @@ def unit_selection_attack(actor):
         sleep(0.2)
         for i in range(150):
             keyboard.unblock_key(i)
+        
         while True:
+            if player1.check_hp() <= 0:
+                for i in range(15):
+                    print()
+                print("                  " + str(player2.name) + " WON!!!!")
+                for i in range(15):
+                    print()
+                quit()
+            elif player2.check_hp() <= 0:
+                for i in range(15):
+                    print()
+                print("                  " + str(player2.name) + " WON!!!!")
+                for i in range(15):
+                    print()
+                quit()
+
             keyp2 = ""
             keyp2 = keyboard.read_key()
             for i in range(150):
@@ -779,6 +837,20 @@ def unit_selection_attack_tower(actor):
             for i in range(150):
                 keyboard.unblock_key(i)
             while True:
+                if player1.check_hp() <= 0:
+                    for i in range(15):
+                        print()
+                    print("                  " + str(player2.name) + " WON!!!!")
+                    for i in range(15):
+                        print()
+                    quit()
+                elif player2.check_hp() <= 0:
+                    for i in range(15):
+                        print()
+                    print("                  " + str(player2.name) + " WON!!!!")
+                    for i in range(15):
+                        print()
+                    quit()
                 keyp2 = ""
                 keyp2 = keyboard.read_key()
                 for i in range(150):
@@ -835,6 +907,20 @@ def tower_selection():
     for i in range(150):
         keyboard.unblock_key(i)
     while True:
+        if player1.check_hp() <= 0:
+            for i in range(15):
+                print()
+            print("                  " + str(player2.name) + " WON!!!!")
+            for i in range(15):
+                print()
+            quit()
+        elif player2.check_hp() <= 0:
+            for i in range(15):
+                print()
+            print("                  " + str(player2.name) + " WON!!!!")
+            for i in range(15):
+                print()
+            quit()
         keyp2 = ""
         keyp2 = keyboard.read_key()
         for i in range(150):
@@ -1400,19 +1486,10 @@ def row_text_update(index):
             row_text[index] = "\033[31m  " + player_list[whose_turn-1].name.upper() + "\033[00m turn:"
 
 
-
-
-is_working = True
-while is_working:
-    main_menu()
-    choice = input("What you want to do: ")
-    
-    if choice == "move":
-        movement(soldier1)
-    elif choice == "attack":
-        attack(soldier1)
-    elif choice == "exit":
-        quit()
+player1.name = input("Enter Player's 1 name: ")
+player2.name = input("Enter Player's 2 name: ")
+sleep(0.5)
+main_menu()
     
 
 
