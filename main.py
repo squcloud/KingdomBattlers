@@ -238,7 +238,7 @@ def buy():  #promting choice of what to buy
                 #for i in range(150):
                  #   keyboard.unblock_key(i)
                 break          
-            if options[selected] == "Tower  700$":
+            elif options[selected] == "Tower  700$":
                 sleep(0.1)
                 if player_list[whose_turn-1].gold >= 700:
                     buy_tower()
@@ -246,8 +246,14 @@ def buy():  #promting choice of what to buy
                     row_text[22] = "   YOU DON'T HAVE ENOUGH MONEY"
                     print_map()
                     sleep(1)
-                #for i in range(150):
-                 #   keyboard.unblock_key(i)
+            elif options[selected] == "Economy Building  500$":
+                sleep(0.1)
+                if player_list[whose_turn-1].gold >= 500:
+                    buy_economy()
+                else:
+                    row_text[22] = "   YOU DON'T HAVE ENOUGH MONEY"
+                    print_map()
+                    sleep(1)
                 break     
         elif keyp3 == "esc":
             break
@@ -493,27 +499,128 @@ def buy_tower():
                     i.selected = False
                 selectable_list[selected].selected = True
                 print_map()
-                sleep(0.1)
+                sleep(0.1)  
 
-
-
-
+def buy_economy():
+    global selectable_list
+    if whose_turn == 1:
+        for x in list(map(chr, range(65, 65 + map_size[0]))):
+            for y in range(0, map_size[1] // 2):
+                if is_free(x,y): 
+                    set_object(x, y, Selectable(x, y))
+        selected = 0
+        selectable_list[selected].selected = True
+        row_text[22] = "     SELECT PLACE WHERE YOU WANT TO PUT YOUR ECONOMY BUILDING     "
+        print_map()
+        sleep(0.2)
+        while True:
+            row_text[22] = "     SELECT PLACE WHERE YOU WANT TO PUT YOUR ECONOMY BUILDING     "
+            keyp2 = ""
+            #keyp2 = keyboard.read_hotkey()
+            #print(keyp2)
+            if keyboard.is_pressed("enter"):
+                choosed_x = selectable_list[selected].x
+                choosed_y = selectable_list[selected].y
+                for i in selectable_list:
+                    i.selected = False
+                for i in selectable_list:
+                    set_object(i.x, i.y, " ")
+                selectable_list = []
+                set_object(choosed_x, choosed_y, Economy_building(whose_turn, x=choosed_x, y=choosed_y))
+                player_list[whose_turn-1].gold -= 500
+                break
+            elif keyboard.is_pressed("esc"):
+                for i in selectable_list:
+                    i.selected = False
+                for i in selectable_list:
+                    set_object(i.x, i.y, " ")
+                selectable_list = []
+                break
+            elif keyboard.is_pressed("up"):
+                selected -= 1
+            elif keyboard.is_pressed("down"):
+                selected += 1
+            elif keyboard.is_pressed("right"):
+                for i in range(len(selectable_list)):
+                    if selectable_list[i].y == selectable_list[selected].y and header_to_number[selectable_list[i].x] > header_to_number[selectable_list[selected].x]:
+                        selected = i
+                        sleep(0.05)
+                        break
+            elif keyboard.is_pressed("left"):
+                for i in reversed(range(len(selectable_list))):
+                    if selectable_list[i].y == selectable_list[selected].y and header_to_number[selectable_list[i].x] < header_to_number[selectable_list[selected].x]:
+                        selected = i
+                        sleep(0.05)
+                        break
+            if selected >= len(selectable_list):
+                selected = 0
+            elif selected < 0:
+                selected = len(selectable_list) - 1
+            for i in selectable_list:
+                i.selected = False
+            selectable_list[selected].selected = True
+            print_map()
+            sleep(0.1)
 
     elif whose_turn == 2:
-        if len(player_list[whose_turn - 1].tower_list) >= 6:
-            row_text[22] = "   TOO MANY TOWERS!!"
+        for x in list(map(chr, range(65, 65 + map_size[0]))):
+            for y in range(map_size[1]//2, map_size[1]):
+                if is_free(x,y): 
+                    set_object(x, y, Selectable(x, y))
+        selected = 0
+        selectable_list[selected].selected = True
+        row_text[22] = "     SELECT PLACE WHERE YOU WANT TO PUT YOUR ECONOMY BUILDING     "
+        print_map()
+        sleep(0.2)
+        while True:
+            row_text[22] = "     SELECT PLACE WHERE YOU WANT TO PUT YOUR ECONOMY BUILDING     "
+            keyp2 = ""
+            #keyp2 = keyboard.read_hotkey()
+            #print(keyp2)
+            if keyboard.is_pressed("enter"):
+                choosed_x = selectable_list[selected].x
+                choosed_y = selectable_list[selected].y
+                for i in selectable_list:
+                    i.selected = False
+                for i in selectable_list:
+                    set_object(i.x, i.y, " ")
+                selectable_list = []
+                set_object(choosed_x, choosed_y, Economy_building(whose_turn, x=choosed_x, y=choosed_y))
+                player_list[whose_turn-1].gold -= 500
+                break
+            elif keyboard.is_pressed("esc"):
+                for i in selectable_list:
+                    i.selected = False
+                for i in selectable_list:
+                    set_object(i.x, i.y, " ")
+                selectable_list = []
+                break
+            elif keyboard.is_pressed("up"):
+                selected -= 1
+            elif keyboard.is_pressed("down"):
+                selected += 1
+            elif keyboard.is_pressed("right"):
+                for i in range(len(selectable_list)):
+                    if selectable_list[i].y == selectable_list[selected].y and header_to_number[selectable_list[i].x] > header_to_number[selectable_list[selected].x]:
+                        selected = i
+                        sleep(0.05)
+                        break
+            elif keyboard.is_pressed("left"):
+                for i in reversed(range(len(selectable_list))):
+                    if selectable_list[i].y == selectable_list[selected].y and header_to_number[selectable_list[i].x] < header_to_number[selectable_list[selected].x]:
+                        selected = i
+                        sleep(0.05)
+                        break
+            if selected >= len(selectable_list):
+                selected = 0
+            elif selected < 0:
+                selected = len(selectable_list) - 1
+
+            for i in selectable_list:
+                i.selected = False
+            selectable_list[selected].selected = True
             print_map()
-            sleep(1)   
-        else:
-            for x in list(map(chr, range(65, 65 + map_size[0]))):
-                for y in range(map_size[1] // 2, map_size[1]):
-                    if is_free(x,y): 
-                        set_object(x, y, Selectable(x, y))
-
-    
-    #globals()[f"soldier{num_of_towers}"] = Tower(whose_turn, 10, 2, "H", 10)
-    #num_of_towers += 1    
-
+            sleep(0.1)  
 
 
 
