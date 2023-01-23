@@ -1,8 +1,11 @@
 #import section
-import keyboard
+from readchar import key, readkey
 import sys
 from time import sleep
 #glossary
+
+
+
 occupied = "\033[31m   CAN'T MOVE HERE BECAUSE THIS PLACE IS OCCUPIED! \033[00m"
 
 num_of_soldiers = 0
@@ -37,10 +40,8 @@ def main_menu():
                 print()
             quit()
         keyp = ""
-        keyp = keyboard.read_key()
-        for i in range(150):
-            keyboard.block_key(i)
-        if keyp == "enter":
+        keyp = readkey()
+        if keyp == key.ENTER:
             if selected == 1: # chosed soldier
                 if len(player_list[whose_turn - 1].soldier_list) > 0:
                     unit_selection()
@@ -79,14 +80,14 @@ def main_menu():
                         o.attack_used = False
                 sleep(0.2)
 
-        elif keyp == "up":
+        elif keyp == key.UP:
             selected -=1
 
-        elif keyp == "down":
+        elif keyp == key.DOWN:
             selected += 1
-        elif keyp == "right":
+        elif keyp == key.RIGHT:
             selected += 1
-        elif keyp == "left":
+        elif keyp == key.LEFT:
             selected -= 1
         if selected >= len(options):
             selected = 0
@@ -102,8 +103,6 @@ def main_menu():
         row_text[22] = options_str
         print_map()
         sleep(0.2)
-        for i in range(150):
-            keyboard.unblock_key(i)
 
 
 def move_attack(actor):  #promting choice of action
@@ -127,11 +126,10 @@ def move_attack(actor):  #promting choice of action
         row_text[22] = options_str
     print_map()
     sleep(0.2)
-    for i in range(150):
-        keyboard.unblock_key(i)
-    if len(options) == 0:
-        for i in range(150):
-            keyboard.block_key(i)
+
+ #
+ #   if len(options) == 0:
+
 
     while len(options) > 0:
         if player1.check_hp() <= 0:
@@ -157,43 +155,40 @@ def move_attack(actor):  #promting choice of action
             selected = 0
         print_map()
         keyp3 = ""
-        keyp3 = keyboard.read_key()
-        for i in range(150):
-            keyboard.block_key(i)
-        if keyp3 == "enter":
+        keyp3 = readkey()
+
+        if keyp3 == key.ENTER:
             if options[selected] == "Move":
                 options_str = ""
                 row_text[22] = options_str
                 movement(actor)
                 if actor.move_used == True and actor.attack_used == True:
                     row_text[22] = "     CHOOSE YOUR UNIT     "
-                    for i in range(150):
-                        keyboard.unblock_key(i)
+
                     break          
             if options[selected] == "Attack":
                 options_str = ""
                 row_text[22] = options_str
                 unit_selection_attack(actor) 
                 if actor.move_used == True and actor.attack_used == True:
-                    for i in range(150):
-                        keyboard.unblock_key(i)
+
                     row_text[22] = "     CHOOSE YOUR UNIT     "
                     break   
 
                 sleep(0.2)
-        elif keyp3 == "esc":
-            row_text[22] = "     CHOSE YOUR UNIT     "
-            for i in range(150):
-                keyboard.unblock_key(i)
-            break
-        elif keyp3 == "up":
+
+        elif keyp3 == key.UP:
             selected -=1
-        elif keyp3 == "down":
+        elif keyp3 == key.DOWN:
             selected += 1
-        elif keyp3 == "right":
+        elif keyp3 == key.RIGHT:
             selected += 1
-        elif keyp3 == "left":
+        elif keyp3 == key.LEFT:
             selected -= 1
+        elif keyp3 == key.BACKSPACE:
+            row_text[22] = "     CHOSE YOUR UNIT     "
+
+            break
         if selected >= len(options):
             selected = 0
         elif selected < 0:
@@ -215,15 +210,13 @@ def move_attack(actor):  #promting choice of action
         row_text[22] = options_str
         print_map()
         sleep(0.2)
-        for i in range(150):
-            keyboard.unblock_key(i)
+
         
     if len(options) == 0:
         row_text[22] = "\033[91m    THIS UNIT HAD TURN ALREADY \033[0m"
         sleep(0.2)
         row_text[22] = "\033[91m    CHOOSE YOUR UNIT \033[0m"
-        for i in range(150):
-            keyboard.unblock_key(i) 
+
 
 
 def buy():  #promting choice of what to buy
@@ -239,8 +232,7 @@ def buy():  #promting choice of what to buy
     print_map()
     while True:
         sleep(0.1)
-        for i in range(150):
-            keyboard.unblock_key(i)
+
         options = ["Soldier  300$", "Tower  700$", "Economy Building  500$"]
         options_str = "  "
         for i in range(len(options)):
@@ -251,10 +243,9 @@ def buy():  #promting choice of what to buy
         row_text[22] = options_str
         print_map()
         keyp3 = ""
-        keyp3 = keyboard.read_key()
-        for i in range(150):
-            keyboard.block_key(i)
-        if keyp3 == "enter":
+        keyp3 = readkey()
+
+        if keyp3 == key.ENTER:
             if options[selected] == "Soldier  300$":
                 sleep(0.1)
                 if player_list[whose_turn-1].gold >= 300:
@@ -263,8 +254,7 @@ def buy():  #promting choice of what to buy
                     row_text[22] = "   YOU DON'T HAVE ENOUGH MONEY"
                     print_map()
                     sleep(1)
-                #for i in range(150):
-                 #   keyboard.unblock_key(i)
+
                 break          
             elif options[selected] == "Tower  700$":
                 sleep(0.1)
@@ -283,16 +273,17 @@ def buy():  #promting choice of what to buy
                     print_map()
                     sleep(1)
                 break     
-        elif keyp3 == "esc":
-            break
-        elif keyp3 == "up":
+
+        elif keyp3 == key.UP:
             selected -=1
-        elif keyp3 == "down":
+        elif keyp3 == key.DOWN:
             selected += 1
-        elif keyp3 == "right":
+        elif keyp3 == key.RIGHT:
             selected += 1
-        elif keyp3 == "left":
+        elif keyp3 == key.LEFT:
             selected -= 1
+        elif keyp3 == key.BACKSPACE:
+            break
         if selected >= len(options):
             selected = 0
         elif selected < 0:
@@ -391,18 +382,10 @@ def buy_tower():
             sleep(0.2)
             while True:
                 row_text[22] = "     SELECT PLACE WHERE YOU WANT TO PUT YOUR TOWER     "
-                keyp2 = ""
-                #keyp2 = keyboard.read_hotkey()
-                #print(keyp2)
-                """if keyp2 == "enter":
-                        move_attack(options[selected])
-                        for i in range(150):
-                            keyboard.block_key(i)
-                        options = []
-                        for i in player_list[whose_turn - 1].soldier_list:
-                            options.append(i)
-                        selected = 0"""
-                if keyboard.is_pressed("enter"):
+                keyp2 = readkey()
+
+
+                if keyp2 == key.ENTER:
                     choosed_x = selectable_list[selected].x
                     choosed_y = selectable_list[selected].y
                     for i in selectable_list:
@@ -418,29 +401,31 @@ def buy_tower():
                         print_map()
                         sleep(1)
                     break
-                elif keyboard.is_pressed("esc"):
+
+        
+                elif keyp2 == key.UP:
+                    selected -= 1
+                elif keyp2 == key.DOWN:
+                    selected += 1
+                elif keyp2 == key.RIGHT:
+                    for i in range(len(selectable_list)):
+                        if selectable_list[i].y == selectable_list[selected].y and header_to_number[selectable_list[i].x] > header_to_number[selectable_list[selected].x]:
+                            selected = i
+                            sleep(0.05)
+                            break
+                elif keyp2 == key.LEFT:
+                    for i in reversed(range(len(selectable_list))):
+                        if selectable_list[i].y == selectable_list[selected].y and header_to_number[selectable_list[i].x] < header_to_number[selectable_list[selected].x]:
+                            selected = i
+                            sleep(0.05)
+                            break
+                elif keyp2 == key.BACKSPACE:
                     for i in selectable_list:
                         i.selected = False
                     for i in selectable_list:
                         set_object(i.x, i.y, " ")
                     selectable_list = []
                     break
-                elif keyboard.is_pressed("up"):
-                    selected -= 1
-                elif keyboard.is_pressed("down"):
-                    selected += 1
-                elif keyboard.is_pressed("right"):
-                    for i in range(len(selectable_list)):
-                        if selectable_list[i].y == selectable_list[selected].y and header_to_number[selectable_list[i].x] > header_to_number[selectable_list[selected].x]:
-                            selected = i
-                            sleep(0.05)
-                            break
-                elif keyboard.is_pressed("left"):
-                    for i in reversed(range(len(selectable_list))):
-                        if selectable_list[i].y == selectable_list[selected].y and header_to_number[selectable_list[i].x] < header_to_number[selectable_list[selected].x]:
-                            selected = i
-                            sleep(0.05)
-                            break
                 if selected >= len(selectable_list):
                     selected = 0
                 elif selected < 0:
@@ -468,18 +453,9 @@ def buy_tower():
             sleep(0.2)
             while True:
                 row_text[22] = "     SELECT PLACE WHERE YOU WANT TO PUT YOUR TOWER     "
-                keyp2 = ""
-                #keyp2 = keyboard.read_hotkey()
-                #print(keyp2)
-                """if keyp2 == "enter":
-                        move_attack(options[selected])
-                        for i in range(150):
-                            keyboard.block_key(i)
-                        options = []
-                        for i in player_list[whose_turn - 1].soldier_list:
-                            options.append(i)
-                        selected = 0"""
-                if keyboard.is_pressed("enter"):
+                keyp2 = readkey()
+
+                if keyp2 == key.ENTER:
                     choosed_x = selectable_list[selected].x
                     choosed_y = selectable_list[selected].y
                     for i in selectable_list:
@@ -495,29 +471,30 @@ def buy_tower():
                         print_map()
                         sleep(1)
                     break
-                elif keyboard.is_pressed("esc"):
+
+                elif keyp2 == key.UP:
+                    selected -= 1
+                elif keyp2 == key.DOWN:
+                    selected += 1
+                elif keyp2 == key.RIGHT:
+                    for i in range(len(selectable_list)):
+                        if selectable_list[i].y == selectable_list[selected].y and header_to_number[selectable_list[i].x] > header_to_number[selectable_list[selected].x]:
+                            selected = i
+                            sleep(0.05)
+                            break
+                elif keyp2 == key.LEFT:
+                    for i in reversed(range(len(selectable_list))):
+                        if selectable_list[i].y == selectable_list[selected].y and header_to_number[selectable_list[i].x] < header_to_number[selectable_list[selected].x]:
+                            selected = i
+                            sleep(0.05)
+                            break
+                elif keyp2 == key.BACKSPACE:
                     for i in selectable_list:
                         i.selected = False
                     for i in selectable_list:
                         set_object(i.x, i.y, " ")
                     selectable_list = []
                     break
-                elif keyboard.is_pressed("up"):
-                    selected -= 1
-                elif keyboard.is_pressed("down"):
-                    selected += 1
-                elif keyboard.is_pressed("right"):
-                    for i in range(len(selectable_list)):
-                        if selectable_list[i].y == selectable_list[selected].y and header_to_number[selectable_list[i].x] > header_to_number[selectable_list[selected].x]:
-                            selected = i
-                            sleep(0.05)
-                            break
-                elif keyboard.is_pressed("left"):
-                    for i in reversed(range(len(selectable_list))):
-                        if selectable_list[i].y == selectable_list[selected].y and header_to_number[selectable_list[i].x] < header_to_number[selectable_list[selected].x]:
-                            selected = i
-                            sleep(0.05)
-                            break
                 if selected >= len(selectable_list):
                     selected = 0
                 elif selected < 0:
@@ -543,10 +520,9 @@ def buy_economy():
         sleep(0.2)
         while True:
             row_text[22] = "     SELECT PLACE WHERE YOU WANT TO PUT YOUR ECONOMY BUILDING     "
-            keyp2 = ""
-            #keyp2 = keyboard.read_hotkey()
-            #print(keyp2)
-            if keyboard.is_pressed("enter"):
+            keyp2 = readkey()
+
+            if keyp2 == key.ENTER:
                 choosed_x = selectable_list[selected].x
                 choosed_y = selectable_list[selected].y
                 for i in selectable_list:
@@ -557,29 +533,30 @@ def buy_economy():
                 set_object(choosed_x, choosed_y, Economy_building(whose_turn, x=choosed_x, y=choosed_y))
                 player_list[whose_turn-1].gold -= 500
                 break
-            elif keyboard.is_pressed("esc"):
+
+            elif keyp2 == key.UP:
+                selected -= 1
+            elif keyp2 == key.DOWN:
+                selected += 1
+            elif keyp2 == key.RIGHT:
+                for i in range(len(selectable_list)):
+                    if selectable_list[i].y == selectable_list[selected].y and header_to_number[selectable_list[i].x] > header_to_number[selectable_list[selected].x]:
+                        selected = i
+                        sleep(0.05)
+                        break
+            elif keyp2 == key.LEFT:
+                for i in reversed(range(len(selectable_list))):
+                    if selectable_list[i].y == selectable_list[selected].y and header_to_number[selectable_list[i].x] < header_to_number[selectable_list[selected].x]:
+                        selected = i
+                        sleep(0.05)
+                        break
+            elif keyp2 == key.BACKSPACE:
                 for i in selectable_list:
                     i.selected = False
                 for i in selectable_list:
                     set_object(i.x, i.y, " ")
                 selectable_list = []
                 break
-            elif keyboard.is_pressed("up"):
-                selected -= 1
-            elif keyboard.is_pressed("down"):
-                selected += 1
-            elif keyboard.is_pressed("right"):
-                for i in range(len(selectable_list)):
-                    if selectable_list[i].y == selectable_list[selected].y and header_to_number[selectable_list[i].x] > header_to_number[selectable_list[selected].x]:
-                        selected = i
-                        sleep(0.05)
-                        break
-            elif keyboard.is_pressed("left"):
-                for i in reversed(range(len(selectable_list))):
-                    if selectable_list[i].y == selectable_list[selected].y and header_to_number[selectable_list[i].x] < header_to_number[selectable_list[selected].x]:
-                        selected = i
-                        sleep(0.05)
-                        break
             if selected >= len(selectable_list):
                 selected = 0
             elif selected < 0:
@@ -602,10 +579,9 @@ def buy_economy():
         sleep(0.2)
         while True:
             row_text[22] = "     SELECT PLACE WHERE YOU WANT TO PUT YOUR ECONOMY BUILDING     "
-            keyp2 = ""
-            #keyp2 = keyboard.read_hotkey()
-            #print(keyp2)
-            if keyboard.is_pressed("enter"):
+            keyp2 = readkey()
+
+            if keyp2 == key.ENTER:
                 choosed_x = selectable_list[selected].x
                 choosed_y = selectable_list[selected].y
                 for i in selectable_list:
@@ -616,29 +592,30 @@ def buy_economy():
                 set_object(choosed_x, choosed_y, Economy_building(whose_turn, x=choosed_x, y=choosed_y))
                 player_list[whose_turn-1].gold -= 500
                 break
-            elif keyboard.is_pressed("esc"):
+
+            elif keyp2 == key.UP:
+                selected -= 1
+            elif keyp2 == key.DOWN:
+                selected += 1
+            elif keyp2 == key.RIGHT:
+                for i in range(len(selectable_list)):
+                    if selectable_list[i].y == selectable_list[selected].y and header_to_number[selectable_list[i].x] > header_to_number[selectable_list[selected].x]:
+                        selected = i
+                        sleep(0.05)
+                        break
+            elif keyp2 == key.LEFT:
+                for i in reversed(range(len(selectable_list))):
+                    if selectable_list[i].y == selectable_list[selected].y and header_to_number[selectable_list[i].x] < header_to_number[selectable_list[selected].x]:
+                        selected = i
+                        sleep(0.05)
+                        break
+            elif keyp2 == key.BACKSPACE:
                 for i in selectable_list:
                     i.selected = False
                 for i in selectable_list:
                     set_object(i.x, i.y, " ")
                 selectable_list = []
                 break
-            elif keyboard.is_pressed("up"):
-                selected -= 1
-            elif keyboard.is_pressed("down"):
-                selected += 1
-            elif keyboard.is_pressed("right"):
-                for i in range(len(selectable_list)):
-                    if selectable_list[i].y == selectable_list[selected].y and header_to_number[selectable_list[i].x] > header_to_number[selectable_list[selected].x]:
-                        selected = i
-                        sleep(0.05)
-                        break
-            elif keyboard.is_pressed("left"):
-                for i in reversed(range(len(selectable_list))):
-                    if selectable_list[i].y == selectable_list[selected].y and header_to_number[selectable_list[i].x] < header_to_number[selectable_list[selected].x]:
-                        selected = i
-                        sleep(0.05)
-                        break
             if selected >= len(selectable_list):
                 selected = 0
             elif selected < 0:
@@ -662,8 +639,7 @@ def unit_selection():
     print_map()
     sleep(0.2)
 
-    for i in range(150):
-        keyboard.unblock_key(i)
+
     while True:
         if player1.check_hp() <= 0:
             for i in range(15):
@@ -681,34 +657,33 @@ def unit_selection():
             quit()
         row_text[22] = "     CHOSE YOUR UNIT     "
         keyp2 = ""
-        keyp2 = keyboard.read_key()
+        keyp2 = readkey()
 
-        for i in range(150):
-            keyboard.block_key(i)
 
-        if keyp2 == "enter":
+
+        if keyp2 == key.ENTER:
                 move_attack(options[selected])
-                for i in range(150):
-                    keyboard.block_key(i)
+
                 options = []
                 for i in player_list[whose_turn - 1].soldier_list:
                     options.append(i)
                 selected = 0
                 
-        elif keyp2 == "esc":
+
+
+        elif keyp2 == key.UP:
+            selected -=1
+
+        elif keyp2 == key.DOWN:
+            selected += 1
+        elif keyp2 == key.RIGHT:
+            selected += 1
+        elif keyp2 == key.LEFT:
+            selected -= 1
+        elif keyp2 == key.BACKSPACE:
             for i in options:
                 i.mstatus = 0
             break
-
-        elif keyp2 == "up":
-            selected -=1
-
-        elif keyp2 == "down":
-            selected += 1
-        elif keyp2 == "right":
-            selected += 1
-        elif keyp2 == "left":
-            selected -= 1
         if selected >= len(options):
             selected = 0
         elif selected < 0:
@@ -718,8 +693,7 @@ def unit_selection():
         options[selected].mstatus = 1
         print_map()
         sleep(0.2)
-        for i in range(150):
-            keyboard.unblock_key(i)
+
 
 def unit_selection_attack(actor):
     options = []
@@ -744,8 +718,7 @@ def unit_selection_attack(actor):
         options[0].mstatus = 1
         print_map()
         sleep(0.2)
-        for i in range(150):
-            keyboard.unblock_key(i)
+
         
         while True:
             if player1.check_hp() <= 0:
@@ -764,10 +737,9 @@ def unit_selection_attack(actor):
                 quit()
 
             keyp2 = ""
-            keyp2 = keyboard.read_key()
-            for i in range(150):
-                keyboard.block_key(i)
-            if keyp2 == "enter":
+            keyp2 = readkey()
+
+            if keyp2 == key.ENTER:
                 options[selected].hp_down(actor.ap)
                 actor.attack_used = True
                 for i in options:
@@ -776,20 +748,21 @@ def unit_selection_attack(actor):
                 break
 
 
-            elif keyp2 == "esc":
+
+
+            elif keyp2 == key.UP:
+                selected -=1
+
+            elif keyp2 == key.DOWN:
+                selected += 1
+            elif keyp2 == key.RIGHT:
+                selected += 1
+            elif keyp2 == key.LEFT:
+                selected -= 1
+            elif keyp2 == key.BACKSPACE:
                 for i in options:
                     i.mstatus = 0
                 break
-
-            elif keyp2 == "up":
-                selected -=1
-
-            elif keyp2 == "down":
-                selected += 1
-            elif keyp2 == "right":
-                selected += 1
-            elif keyp2 == "left":
-                selected -= 1
             if selected >= len(options):
                 selected = 0
             elif selected < 0:
@@ -801,8 +774,7 @@ def unit_selection_attack(actor):
             options[selected].mstatus = 1
             print_map()
             sleep(0.2)
-            for i in range(150):
-                keyboard.unblock_key(i)
+
 
 def unit_selection_attack_tower(actor):
     if actor.attack_used == True:
@@ -834,8 +806,7 @@ def unit_selection_attack_tower(actor):
             options[0].mstatus = 1
             print_map()
             sleep(0.2)
-            for i in range(150):
-                keyboard.unblock_key(i)
+
             while True:
                 if player1.check_hp() <= 0:
                     for i in range(15):
@@ -852,10 +823,9 @@ def unit_selection_attack_tower(actor):
                         print()
                     quit()
                 keyp2 = ""
-                keyp2 = keyboard.read_key()
-                for i in range(150):
-                    keyboard.block_key(i)
-                if keyp2 == "enter":
+                keyp2 = readkey()
+
+                if keyp2 == key.ENTER:
                     options[selected].hp_down(actor.ap)
                     actor.attack_used = True
                     for i in options:
@@ -865,21 +835,22 @@ def unit_selection_attack_tower(actor):
                     break
 
 
-                elif keyp2 == "esc":
+
+
+                elif keyp2 == key.UP:
+                    selected -=1
+
+                elif keyp2 == key.DOWN:
+                    selected += 1
+                elif keyp2 == key.RIGHT:
+                    selected += 1
+                elif keyp2 == key.LEFT:
+                    selected -= 1
+                elif keyp2 == key.BACKSPACE:
                     for i in options:
                         i.mstatus = 0
                     row_text[22] = "     CHOOSE YOU TOWER"
                     break
-
-                elif keyp2 == "up":
-                    selected -=1
-
-                elif keyp2 == "down":
-                    selected += 1
-                elif keyp2 == "right":
-                    selected += 1
-                elif keyp2 == "left":
-                    selected -= 1
                 if selected >= len(options):
                     selected = 0
                 elif selected < 0:
@@ -891,8 +862,7 @@ def unit_selection_attack_tower(actor):
                 options[selected].mstatus = 1
                 print_map()
                 sleep(0.2)
-                for i in range(150):
-                    keyboard.unblock_key(i)
+
 
 
 
@@ -904,8 +874,8 @@ def tower_selection():
     options[0].mstatus = 1
     print_map()
     sleep(0.2)
-    for i in range(150):
-        keyboard.unblock_key(i)
+
+
     while True:
         if player1.check_hp() <= 0:
             for i in range(15):
@@ -922,28 +892,28 @@ def tower_selection():
                 print()
             quit()
         keyp2 = ""
-        keyp2 = keyboard.read_key()
-        for i in range(150):
-            keyboard.block_key(i)
-        if keyp2 == "enter":
+        keyp2 = readkey()
+
+        if keyp2 == key.ENTER:
             unit_selection_attack_tower(options[selected])
             options = []
             for i in player_list[whose_turn - 1].tower_list:
                 options.append(i)
-        elif keyp2 == "esc":
+
+
+        elif keyp2 == key.UP:
+            selected -=1
+
+        elif keyp2 == key.DOWN:
+            selected += 1
+        elif keyp2 == key.RIGHT:
+            selected += 1
+        elif keyp2 == key.LEFT:
+            selected -= 1
+        elif keyp2 == key.BACKSPACE:
             for i in options:
                 i.mstatus = 0
             break
-
-        elif keyp2 == "up":
-            selected -=1
-
-        elif keyp2 == "down":
-            selected += 1
-        elif keyp2 == "right":
-            selected += 1
-        elif keyp2 == "left":
-            selected -= 1
         if selected >= len(options):
             selected = 0
         elif selected < 0:
@@ -955,8 +925,7 @@ def tower_selection():
         options[selected].mstatus = 1
         print_map()
         sleep(0.2)
-        for i in range(150):
-            keyboard.unblock_key(i)
+
 
 
 
@@ -1302,21 +1271,16 @@ def movement(walker): # mechanics of prompting for movement of soldiers
         row_text[22] = "    STEPS LEFT: " + str(steps_left)
         print_map()
         sleep(0.2)
-        for i in range(150):
-            keyboard.unblock_key(i)
+
         keyp = ""
-        keyp = keyboard.read_key()
-        for i in range(150):
-            keyboard.block_key(i)
-        if keyp == "esc":
+        keyp = readkey()
+
+
+        if keyp == key.ENTER:
             walker.move_used = True
             break
-        if keyp == "enter":
-            walker.move_used = True
-            break
-        elif keyp == "up":
-            for i in range(3):
-                keyboard.send('backspace')
+        elif keyp == key.UP:
+ 
             if is_free(walker.x, walker.y - 1):
                 set_object(walker.x, walker.y, " ")
                 walker.xy(walker.x, walker.y - 1)
@@ -1324,9 +1288,8 @@ def movement(walker): # mechanics of prompting for movement of soldiers
                 row_text[22] = occupied
                 print_map()
                 sleep(1)
-        elif keyp == "down":
-            for i in range(3):
-                keyboard.send('backspace')
+        elif keyp == key.DOWN:
+
             if is_free(walker.x, walker.y + 1):
                 set_object(walker.x, walker.y, " ")
                 walker.xy(walker.x, walker.y + 1)
@@ -1334,9 +1297,8 @@ def movement(walker): # mechanics of prompting for movement of soldiers
                 row_text[22] = occupied
                 print_map()
                 sleep(1)
-        elif keyp == "right":
-            for i in range(3):
-                keyboard.send('backspace')
+        elif keyp == key.RIGHT:
+
             if is_free(headshift(walker.x, 1), walker.y):
                 set_object(walker.x, walker.y, " ")
                 walker.xy(headshift(walker.x, 1), walker.y)
@@ -1344,9 +1306,8 @@ def movement(walker): # mechanics of prompting for movement of soldiers
                 row_text[22] = occupied
                 print_map()
                 sleep(1)
-        elif keyp == "left":
-            for i in range(3):
-                keyboard.send('backspace')
+        elif keyp == key.LEFT:
+
             if is_free(headshift(walker.x, -1), walker.y):
                 set_object(walker.x, walker.y, " ")
                 walker.xy(headshift(walker.x, -1), walker.y)
@@ -1354,7 +1315,9 @@ def movement(walker): # mechanics of prompting for movement of soldiers
                 row_text[22] = occupied
                 print_map()
                 sleep(1.5)
-        
+        if keyp == key.BACKSPACE:
+            walker.move_used = True
+            break
         steps_left -= 1
         row_text[22] = "    STEPS LEFT: " + str(steps_left)
         print_map()
